@@ -67,13 +67,14 @@ uploadArchives {
                 authentication(userName: ossrhUsername, password: ossrhPassword)
             }
 
+            pom.artifactId = 'webviewer'
             pom.project {
                 name 'limsungtae.maven.webviewer'
                 packaging 'aar'
 
                 groupId "com.github.fobid"
                 artifactId "webviewer"
-                version "0.0.6"
+                version "0.0.1"
 
                 description 'Simple WebView for Android'
                 url 'https://github.com/fobid/webviewer'
