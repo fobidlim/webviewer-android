@@ -13,28 +13,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.tfc.webviewer.presenter;
+package com.tfc.webviewer.util;
 
-import android.webkit.WebView;
-import android.widget.PopupWindow;
+import java.net.MalformedURLException;
+import java.net.URL;
 
 /**
  * author @Fobid
  */
-public interface IWebViewPresenter {
-    void onBackPressed(PopupWindow menu, WebView webView);
-
-    void onReceivedTitle(String title, String url);
-
-    void onClickMenu(PopupWindow menu);
-
-    void setEnabledGoBackAndGoFoward(boolean enabledGoBack, boolean enabledGoFoward);
-
-    void onRefresh();
-
-    void onClickClose();
-
-    void onClickGoBack();
-
-    void onClickGoFoward();
+public class UrlUtils {
+    public static String getHost(String url) {
+        try {
+            return new URL(url).getHost();
+        } catch (MalformedURLException e) {
+            e.printStackTrace();
+        }
+        return url;
+    }
 }

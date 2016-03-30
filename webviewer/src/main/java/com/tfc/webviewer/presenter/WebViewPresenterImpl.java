@@ -15,6 +15,7 @@
  */
 package com.tfc.webviewer.presenter;
 
+import android.webkit.WebView;
 import android.widget.PopupWindow;
 
 import com.tfc.webviewer.view.IWebViewerView;
@@ -28,6 +29,17 @@ public class WebViewPresenterImpl implements IWebViewPresenter {
 
     public WebViewPresenterImpl(IWebViewerView view) {
         mView = view;
+    }
+
+    @Override
+    public void onBackPressed(PopupWindow menu, WebView webView) {
+        if (menu.isShowing()) {
+            mView.closeMenu();
+        } else if (webView.canGoBack()) {
+            mView.goBack();
+        } else {
+            mView.close();
+        }
     }
 
     @Override
@@ -46,8 +58,28 @@ public class WebViewPresenterImpl implements IWebViewPresenter {
     }
 
     @Override
-    public void onRefresh() {
+    public void setEnabledGoBackAndGoFoward(boolean enabledGoBack, boolean enabledGoFoward) {
+        if (enabledGoBack || enabledGoFoward) {
+            mView.setEnabledGoBackAndGoFoward();
 
+            if (enabledGoBack) {
+                mView.setEnabledGoBack();
+            } else {
+                mView.setDisabledGoBack();
+            }
+
+            if (enabledGoFoward) {
+                mView.setEnabledGoFoward();
+            } else {
+                mView.setDisabledGoFoward();
+            }
+        } else {
+            mView.setDisabledGoBackAndGoFoward();
+        }
+    }
+
+    @Override
+    public void onRefresh() {
     }
 
     @Override
@@ -56,12 +88,12 @@ public class WebViewPresenterImpl implements IWebViewPresenter {
     }
 
     @Override
-    public void onClickPrev() {
-
+    public void onClickGoBack() {
+        mView.goBack();
     }
 
     @Override
-    public void onClickNext() {
-
+    public void onClickGoFoward() {
+        mView.goFoward();
     }
 }

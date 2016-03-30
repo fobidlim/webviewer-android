@@ -23,6 +23,7 @@ import android.os.Bundle;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.AppCompatImageButton;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.WindowManager;
@@ -36,6 +37,7 @@ import android.widget.TextView;
 
 import com.tfc.webviewer.R;
 import com.tfc.webviewer.presenter.WebViewPresenterImpl;
+import com.tfc.webviewer.util.UrlUtils;
 import com.tfc.webviewer.view.IWebViewerView;
 
 /**
@@ -56,12 +58,14 @@ public class WebViewerActivity extends AppCompatActivity implements IWebViewerVi
 
     private ProgressBar mPb;
     private SwipeRefreshLayout mSrl;
-    private WebView mWv;
+    private WebView mWebView;
 
     // PopupWindow
     private PopupWindow mPopupMenu;
     private LinearLayout mLlControlButtons;
     private AppCompatImageButton mBtnMore;
+    private AppCompatImageButton mBtnBack;
+    private AppCompatImageButton mBtnFoward;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -79,10 +83,6 @@ public class WebViewerActivity extends AppCompatActivity implements IWebViewerVi
         mPresenter = new WebViewPresenterImpl(this);
 
         bindView();
-
-        initPopupMenu();
-
-
     }
 
     private void bindView() {
@@ -94,17 +94,22 @@ public class WebViewerActivity extends AppCompatActivity implements IWebViewerVi
 
         mPb = (ProgressBar) findViewById(R.id.a_web_viewer_pb);
         mSrl = (SwipeRefreshLayout) findViewById(R.id.a_web_viewer_srl);
-        mWv = (WebView) findViewById(R.id.a_web_viewer_wv);
+        mWebView = (WebView) findViewById(R.id.a_web_viewer_wv);
         mSrl.setOnRefreshListener(this);
 
-        mWv.setWebChromeClient(new MyWebChromeClient());
-        mWv.setWebViewClient(new MyWebViewClient());
-        mWv.loadUrl(mUrl);
+        mWebView.setWebChromeClient(new MyWebChromeClient());
+        mWebView.setWebViewClient(new MyWebViewClient());
+        mWebView.loadUrl(mUrl);
 
-        // PopupWindow
         mBtnMore = (AppCompatImageButton) findViewById(R.id.toolbar_btn_more);
+
+        //noinspection ConstantConditions
+        findViewById(R.id.toolbar_btn_close).setOnClickListener(this);
         //noinspection ConstantConditions
         mBtnMore.setOnClickListener(this);
+
+        // PopupWindow
+        initPopupMenu();
     }
 
 
@@ -115,12 +120,19 @@ public class WebViewerActivity extends AppCompatActivity implements IWebViewerVi
         mPopupMenu = new PopupWindow(this);
 
         mPopupMenu.setContentView(view);
+//        mPopupMenu.setOutsideTouchable(true);
 
+        mLlControlButtons = (LinearLayout) view.findViewById(R.id.popup_menu_ll_control_buttons);
+        mBtnBack = (AppCompatImageButton) view.findViewById(R.id.popup_menu_btn_back);
+        mBtnFoward = (AppCompatImageButton) view.findViewById(R.id.popup_menu_btn_forward);
 
+        mBtnBack.setOnClickListener(this);
+        mBtnFoward.setOnClickListener(this);
     }
 
     @Override
     public void close() {
+        Log.d("webviewer", "close");
         finish();
     }
 
@@ -135,6 +147,46 @@ public class WebViewerActivity extends AppCompatActivity implements IWebViewerVi
     }
 
     @Override
+    public void setEnabledGoBackAndGoFoward() {
+        mLlControlButtons.setVisibility(View.VISIBLE);
+    }
+
+    @Override
+    public void setDisabledGoBackAndGoFoward() {
+        mLlControlButtons.setVisibility(View.GONE);
+    }
+
+    @Override
+    public void setEnabledGoBack() {
+        mBtnBack.setEnabled(true);
+    }
+
+    @Override
+    public void setDisabledGoBack() {
+        mBtnBack.setEnabled(false);
+    }
+
+    @Override
+    public void setEnabledGoFoward() {
+        mBtnFoward.setEnabled(true);
+    }
+
+    @Override
+    public void setDisabledGoFoward() {
+        mBtnFoward.setEnabled(false);
+    }
+
+    @Override
+    public void goBack() {
+        mWebView.goBack();
+    }
+
+    @Override
+    public void goFoward() {
+        mWebView.goForward();
+    }
+
+    @Override
     public void onProgressChanged(int progress) {
 
     }
@@ -146,7 +198,7 @@ public class WebViewerActivity extends AppCompatActivity implements IWebViewerVi
 
     @Override
     public void setToolbarUrl(String url) {
-        mTvUrl.setText(url);
+        mTvUrl.setText(UrlUtils.getHost(url));
     }
 
     @Override
@@ -181,16 +233,25 @@ public class WebViewerActivity extends AppCompatActivity implements IWebViewerVi
 
     @Override
     public void onClick(View v) {
-        mPresenter.onClickMenu(mPopupMenu);
+        int resId = v.getId();
 
-//        if (R.id.more == v.getId()) {
-//            mPresenter.onClickMenu(mPopupMenu);
-//        }
+        if (R.id.toolbar_btn_close == resId) {
+            closeMenu();
+            mPresenter.onClickClose();
+        } else if (R.id.toolbar_btn_more == resId) {
+            mPresenter.onClickMenu(mPopupMenu);
+        } else if (R.id.popup_menu_btn_back == resId) {
+            closeMenu();
+            mPresenter.onClickGoBack();
+        } else if (R.id.popup_menu_btn_forward == resId) {
+            closeMenu();
+            mPresenter.onClickGoFoward();
+        }
     }
 
     @Override
     public void onRefresh() {
-        mWv.reload();
+        mWebView.reload();
     }
 
     public class MyWebChromeClient extends WebChromeClient {
@@ -241,29 +302,18 @@ public class WebViewerActivity extends AppCompatActivity implements IWebViewerVi
         public void onPageStarted(WebView view, String url, Bitmap favicon) {
 //            BroadCastManager.onPageStarted(FinestWebViewActivity.this, key, url);
             if (!url.contains("docs.google.com") && url.endsWith(".pdf")) {
-                mWv.loadUrl("http://docs.google.com/gview?embedded=true&url=" + url);
+                mWebView.loadUrl("http://docs.google.com/gview?embedded=true&url=" + url);
             }
         }
 
         @Override
         public void onPageFinished(WebView view, String url) {
-//            BroadCastManager.onPageFinished(FinestWebViewActivity.this, key, url);
+            mPresenter.onReceivedTitle(view.getTitle(), url);
 
-//            if (updateTitleFromHtml)
-//                title.setText(view.getTitle());
-//            urlTv.setText(UrlParser.getHost(url));
 //            requestCenterLayout();
-//
-//            if (view.canGoBack() || view.canGoForward()) {
-//                back.setVisibility(showIconBack ? View.VISIBLE : View.GONE);
-//                forward.setVisibility(showIconForward ? View.VISIBLE : View.GONE);
-//                back.setEnabled(!disableIconBack && (rtl ? view.canGoForward() : view.canGoBack()));
-//                forward.setEnabled(!disableIconForward && (rtl ? view.canGoBack() : view.canGoForward()));
-//            } else {
-//                back.setVisibility(View.GONE);
-//                forward.setVisibility(View.GONE);
-//            }
-//
+
+            mPresenter.setEnabledGoBackAndGoFoward(view.canGoBack(), view.canGoForward());
+
 //            if (injectJavaScript != null)
 //                webView.loadUrl(injectJavaScript);
         }
@@ -296,5 +346,10 @@ public class WebViewerActivity extends AppCompatActivity implements IWebViewerVi
         public void onPageCommitVisible(WebView view, String url) {
 //            BroadCastManager.onPageCommitVisible(FinestWebViewActivity.this, key, url);
         }
+    }
+
+    @Override
+    public void onBackPressed() {
+        mPresenter.onBackPressed(mPopupMenu, mWebView);
     }
 }

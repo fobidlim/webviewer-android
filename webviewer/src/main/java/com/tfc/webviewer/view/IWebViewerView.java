@@ -25,6 +25,22 @@ public interface IWebViewerView {
 
     void openMenu();
 
+    void setEnabledGoBackAndGoFoward();
+
+    void setDisabledGoBackAndGoFoward();
+
+    void setEnabledGoBack();
+
+    void setDisabledGoBack();
+
+    void setEnabledGoFoward();
+
+    void setDisabledGoFoward();
+
+    void goBack();
+
+    void goFoward();
+
     void onProgressChanged(int progress);
 
     void setToolbarTitle(String title);

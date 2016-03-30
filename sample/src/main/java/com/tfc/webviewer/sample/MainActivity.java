@@ -14,7 +14,7 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         Intent intent = new Intent(this, WebViewerActivity.class);
-        intent.putExtra(WebViewerActivity.EXTRA_URL, "http://www.google.com");
+        intent.putExtra(WebViewerActivity.EXTRA_URL, "https://www.github.com/fobid");
         startActivity(intent);
     }
 }
