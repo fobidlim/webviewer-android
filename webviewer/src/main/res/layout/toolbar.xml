@@ -15,6 +15,7 @@
             android:layout_height="match_parent"
             android:layout_alignParentLeft="true"
             android:layout_centerVertical="true"
+            android:background="@drawable/selector_light_theme"
             app:srcCompat="@drawable/close" />
 
         <LinearLayout
@@ -32,6 +33,7 @@
                 android:layout_marginBottom="1.5dp"
                 android:layout_marginTop="1.5dp"
                 android:ellipsize="end"
+                android:textSize="14dp"
                 android:gravity="center"
                 android:includeFontPadding="false"
                 android:singleLine="true" />
@@ -56,6 +58,7 @@
             android:layout_height="match_parent"
             android:layout_alignParentRight="true"
             android:layout_centerVertical="true"
+            android:background="@drawable/selector_light_theme"
             app:srcCompat="@drawable/more" />
     </RelativeLayout>
 

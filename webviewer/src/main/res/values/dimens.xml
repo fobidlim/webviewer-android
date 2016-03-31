@@ -11,4 +11,6 @@
     <dimen name="menuItemTextSize">16dp</dimen>
     <dimen name="menuItemHeight">48dp</dimen>
     <dimen name="menuItemPaddingVertical">20dp</dimen>
+
+    <item format="float" name="highlight_alpha_colored" type="dimen">0.26</item>
 </resources>
