@@ -3,8 +3,8 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
-    app:cardCornerRadius="2dp"
     app:cardBackgroundColor="@android:color/white"
+    app:cardCornerRadius="2dp"
     app:contentPaddingBottom="@dimen/menuPaddingVertical"
     app:contentPaddingTop="@dimen/menuPaddingVertical">
 
@@ -26,6 +26,7 @@
                 android:layout_width="0dp"
                 android:layout_height="@dimen/menuItemHeight"
                 android:layout_weight="1"
+                android:background="@drawable/selector_light_theme"
                 app:srcCompat="@drawable/back" />
 
             <View
@@ -38,6 +39,7 @@
                 android:layout_width="0dp"
                 android:layout_height="@dimen/menuItemHeight"
                 android:layout_weight="1"
+                android:background="@drawable/selector_light_theme"
                 app:srcCompat="@drawable/forward" />
         </LinearLayout>
 
