@@ -38,12 +38,11 @@ import android.widget.TextView;
 import com.tfc.webviewer.R;
 import com.tfc.webviewer.presenter.WebViewPresenterImpl;
 import com.tfc.webviewer.util.UrlUtils;
-import com.tfc.webviewer.view.IWebViewerView;
 
 /**
  * author @Fobid
  */
-public class WebViewerActivity extends AppCompatActivity implements IWebViewerView,
+public class WebViewerActivity extends AppCompatActivity implements WebViewPresenterImpl.View,
         View.OnClickListener, SwipeRefreshLayout.OnRefreshListener {
 
     public static final String EXTRA_URL = "url";
@@ -128,6 +127,10 @@ public class WebViewerActivity extends AppCompatActivity implements IWebViewerVi
 
         mBtnBack.setOnClickListener(this);
         mBtnFoward.setOnClickListener(this);
+        view.findViewById(R.id.popup_menu_btn_refresh).setOnClickListener(this);
+        view.findViewById(R.id.popup_menu_btn_copy_link).setOnClickListener(this);
+        view.findViewById(R.id.popup_menu_btn_open_with_other_browser).setOnClickListener(this);
+        view.findViewById(R.id.popup_menu_btn_share).setOnClickListener(this);
     }
 
     @Override
@@ -246,6 +249,18 @@ public class WebViewerActivity extends AppCompatActivity implements IWebViewerVi
         } else if (R.id.popup_menu_btn_forward == resId) {
             closeMenu();
             mPresenter.onClickGoFoward();
+        } else if (R.id.popup_menu_btn_refresh == resId) {
+            closeMenu();
+
+        } else if (R.id.popup_menu_btn_copy_link == resId) {
+            closeMenu();
+
+        } else if (R.id.popup_menu_btn_open_with_other_browser == resId) {
+            closeMenu();
+
+        } else if (R.id.popup_menu_btn_share == resId) {
+            closeMenu();
+
         }
     }
 

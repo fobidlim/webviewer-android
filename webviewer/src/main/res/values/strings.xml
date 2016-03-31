@@ -1,3 +1,9 @@
 <resources>
     <string name="app_name">WebViewer</string>
+
+    <!-- Menu -->
+    <string name="menu_refresh">새로 고침</string>
+    <string name="menu_copy_link">링크 복사</string>
+    <string name="menu_open_with_other_browser">다른 브라우저로 열기</string>
+    <string name="menu_share">다른 앱으로 공유</string>
 </resources>

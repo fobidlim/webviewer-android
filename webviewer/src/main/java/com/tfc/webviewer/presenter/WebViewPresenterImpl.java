@@ -18,16 +18,14 @@ package com.tfc.webviewer.presenter;
 import android.webkit.WebView;
 import android.widget.PopupWindow;
 
-import com.tfc.webviewer.view.IWebViewerView;
-
 /**
  * author @Fobid
  */
 public class WebViewPresenterImpl implements IWebViewPresenter {
 
-    private final IWebViewerView mView;
+    private final View mView;
 
-    public WebViewPresenterImpl(IWebViewerView view) {
+    public WebViewPresenterImpl(View view) {
         mView = view;
     }
 
@@ -95,5 +93,47 @@ public class WebViewPresenterImpl implements IWebViewPresenter {
     @Override
     public void onClickGoFoward() {
         mView.goFoward();
+    }
+
+    public interface View {
+        void close();
+
+        void closeMenu();
+
+        void openMenu();
+
+        void setEnabledGoBackAndGoFoward();
+
+        void setDisabledGoBackAndGoFoward();
+
+        void setEnabledGoBack();
+
+        void setDisabledGoBack();
+
+        void setEnabledGoFoward();
+
+        void setDisabledGoFoward();
+
+        void goBack();
+
+        void goFoward();
+
+        void onProgressChanged(int progress);
+
+        void setToolbarTitle(String title);
+
+        void setToolbarUrl(String url);
+
+        void onReceivedTouchIconUrl(String url, boolean precomposed);
+
+        void onPageStarted(String url);
+
+        void onPageFinished(String url);
+
+        void onLoadResource(String url);
+
+        void onPageCommitVisible(String url);
+
+        void onDownloadStart(String url, String userAgent, String contentDisposition, String mimeType, long contentLength);
     }
 }
