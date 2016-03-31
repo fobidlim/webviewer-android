@@ -15,6 +15,8 @@
  */
 package com.tfc.webviewer.presenter;
 
+import android.content.Context;
+import android.net.Uri;
 import android.webkit.WebView;
 import android.widget.PopupWindow;
 
@@ -26,15 +28,19 @@ public interface IWebViewPresenter {
 
     void onReceivedTitle(String title, String url);
 
+    void onClickClose();
+
     void onClickMenu(PopupWindow menu);
 
     void setEnabledGoBackAndGoFoward(boolean enabledGoBack, boolean enabledGoFoward);
 
-    void onRefresh();
-
-    void onClickClose();
-
     void onClickGoBack();
 
     void onClickGoFoward();
+
+    void onClickCopyLink(Context context, String url);
+
+    void onClickOpenBrowser(Uri uri);
+
+    void onClickShare(String url);
 }

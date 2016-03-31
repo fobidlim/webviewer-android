@@ -23,7 +23,6 @@ import android.os.Bundle;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.AppCompatImageButton;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.WindowManager;
@@ -34,9 +33,11 @@ import android.widget.LinearLayout;
 import android.widget.PopupWindow;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.tfc.webviewer.R;
 import com.tfc.webviewer.presenter.WebViewPresenterImpl;
+import com.tfc.webviewer.util.ClipboardUtils;
 import com.tfc.webviewer.util.UrlUtils;
 
 /**
@@ -55,8 +56,8 @@ public class WebViewerActivity extends AppCompatActivity implements WebViewPrese
     private TextView mTvTitle;
     private TextView mTvUrl;
 
-    private ProgressBar mPb;
-    private SwipeRefreshLayout mSrl;
+    private ProgressBar mProgressBar;
+    private SwipeRefreshLayout mSwipeRefreshLayout;
     private WebView mWebView;
 
     // PopupWindow
@@ -84,6 +85,20 @@ public class WebViewerActivity extends AppCompatActivity implements WebViewPrese
         bindView();
     }
 
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        if (mUrl != null) {
+            outState.putString(EXTRA_URL, mUrl);
+        }
+        super.onSaveInstanceState(outState);
+    }
+
+    @Override
+    protected void onRestoreInstanceState(Bundle savedInstanceState) {
+        mUrl = savedInstanceState.getString(EXTRA_URL);
+        super.onRestoreInstanceState(savedInstanceState);
+    }
+
     private void bindView() {
         // Toolbar
         mTvTitle = (TextView) findViewById(R.id.toolbar_tv_title);
@@ -91,10 +106,10 @@ public class WebViewerActivity extends AppCompatActivity implements WebViewPrese
 
         mPresenter.onReceivedTitle("", mUrl);
 
-        mPb = (ProgressBar) findViewById(R.id.a_web_viewer_pb);
-        mSrl = (SwipeRefreshLayout) findViewById(R.id.a_web_viewer_srl);
+        mProgressBar = (ProgressBar) findViewById(R.id.a_web_viewer_pb);
+        mSwipeRefreshLayout = (SwipeRefreshLayout) findViewById(R.id.a_web_viewer_srl);
         mWebView = (WebView) findViewById(R.id.a_web_viewer_wv);
-        mSrl.setOnRefreshListener(this);
+        mSwipeRefreshLayout.setOnRefreshListener(this);
 
         mWebView.setWebChromeClient(new MyWebChromeClient());
         mWebView.setWebViewClient(new MyWebViewClient());
@@ -135,7 +150,6 @@ public class WebViewerActivity extends AppCompatActivity implements WebViewPrese
 
     @Override
     public void close() {
-        Log.d("webviewer", "close");
         finish();
     }
 
@@ -187,6 +201,29 @@ public class WebViewerActivity extends AppCompatActivity implements WebViewPrese
     @Override
     public void goFoward() {
         mWebView.goForward();
+    }
+
+    @Override
+    public void copyLink(String url) {
+        ClipboardUtils.copyText(this, url);
+    }
+
+    @Override
+    public void showToast(Toast toast) {
+        toast.show();
+    }
+
+    @Override
+    public void openBrowser(Uri uri) {
+        startActivity(new Intent(Intent.ACTION_VIEW, uri));
+    }
+
+    @Override
+    public void openShare(String url) {
+        Intent intent = new Intent(Intent.ACTION_SEND);
+        intent.putExtra(Intent.EXTRA_TEXT, mWebView.getUrl());
+        intent.setType("text/plain");
+        startActivity(Intent.createChooser(intent, getResources().getString(R.string.menu_share)));
     }
 
     @Override
@@ -251,16 +288,16 @@ public class WebViewerActivity extends AppCompatActivity implements WebViewPrese
             mPresenter.onClickGoFoward();
         } else if (R.id.popup_menu_btn_refresh == resId) {
             closeMenu();
-
+            onRefresh();
         } else if (R.id.popup_menu_btn_copy_link == resId) {
             closeMenu();
-
+            mPresenter.onClickCopyLink(this, mWebView.getUrl());
         } else if (R.id.popup_menu_btn_open_with_other_browser == resId) {
             closeMenu();
-
+            mPresenter.onClickOpenBrowser(Uri.parse(mWebView.getUrl()));
         } else if (R.id.popup_menu_btn_share == resId) {
             closeMenu();
-
+            mPresenter.onClickShare(mWebView.getUrl());
         }
     }
 
@@ -273,22 +310,20 @@ public class WebViewerActivity extends AppCompatActivity implements WebViewPrese
 
         @Override
         public void onProgressChanged(WebView view, int progress) {
-//            BroadCastManager.onProgressChanged(FinestWebViewActivity.this, key, progress);
-
-            if (mSrl.isRefreshing() && progress == 100) {
-                mSrl.post(new Runnable() {
+            if (mSwipeRefreshLayout.isRefreshing() && progress == 100) {
+                mSwipeRefreshLayout.post(new Runnable() {
                     @Override
                     public void run() {
-                        mSrl.setRefreshing(false);
+                        mSwipeRefreshLayout.setRefreshing(false);
                     }
                 });
             }
 
-            if (!mSrl.isRefreshing() && progress != 100) {
-                mSrl.post(new Runnable() {
+            if (!mSwipeRefreshLayout.isRefreshing() && progress != 100) {
+                mSwipeRefreshLayout.post(new Runnable() {
                     @Override
                     public void run() {
-                        mSrl.setRefreshing(true);
+                        mSwipeRefreshLayout.setRefreshing(true);
                     }
                 });
             }
@@ -296,18 +331,16 @@ public class WebViewerActivity extends AppCompatActivity implements WebViewPrese
             if (progress == 100) {
                 progress = 0;
             }
-            mPb.setProgress(progress);
+            mProgressBar.setProgress(progress);
         }
 
         @Override
         public void onReceivedTitle(WebView view, String title) {
             mPresenter.onReceivedTitle(title, view.getUrl());
-//            BroadCastManager.onReceivedTitle(FinestWebViewActivity.this, key, title);
         }
 
         @Override
         public void onReceivedTouchIconUrl(WebView view, String url, boolean precomposed) {
-//            BroadCastManager.onReceivedTouchIconUrl(FinestWebViewActivity.this, key, url, precomposed);
         }
     }
 
@@ -315,7 +348,6 @@ public class WebViewerActivity extends AppCompatActivity implements WebViewPrese
 
         @Override
         public void onPageStarted(WebView view, String url, Bitmap favicon) {
-//            BroadCastManager.onPageStarted(FinestWebViewActivity.this, key, url);
             if (!url.contains("docs.google.com") && url.endsWith(".pdf")) {
                 mWebView.loadUrl("http://docs.google.com/gview?embedded=true&url=" + url);
             }
@@ -354,12 +386,10 @@ public class WebViewerActivity extends AppCompatActivity implements WebViewPrese
 
         @Override
         public void onLoadResource(WebView view, String url) {
-//            BroadCastManager.onLoadResource(FinestWebViewActivity.this, key, url);
         }
 
         @Override
         public void onPageCommitVisible(WebView view, String url) {
-//            BroadCastManager.onPageCommitVisible(FinestWebViewActivity.this, key, url);
         }
     }
 

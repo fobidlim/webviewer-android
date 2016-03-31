@@ -15,8 +15,14 @@
  */
 package com.tfc.webviewer.presenter;
 
+import android.annotation.SuppressLint;
+import android.content.Context;
+import android.net.Uri;
 import android.webkit.WebView;
 import android.widget.PopupWindow;
+import android.widget.Toast;
+
+import com.tfc.webviewer.R;
 
 /**
  * author @Fobid
@@ -77,10 +83,6 @@ public class WebViewPresenterImpl implements IWebViewPresenter {
     }
 
     @Override
-    public void onRefresh() {
-    }
-
-    @Override
     public void onClickClose() {
         mView.close();
     }
@@ -93,6 +95,25 @@ public class WebViewPresenterImpl implements IWebViewPresenter {
     @Override
     public void onClickGoFoward() {
         mView.goFoward();
+    }
+
+    @Override
+    public void onClickCopyLink(Context context, String url) {
+        mView.copyLink(url);
+
+        @SuppressLint("ShowToast")
+        Toast toast = Toast.makeText(context, context.getString(R.string.copy_to_clipboard), Toast.LENGTH_LONG);
+        mView.showToast(toast);
+    }
+
+    @Override
+    public void onClickOpenBrowser(Uri uri) {
+        mView.openBrowser(uri);
+    }
+
+    @Override
+    public void onClickShare(String url) {
+        mView.openShare(url);
     }
 
     public interface View {
@@ -117,6 +138,14 @@ public class WebViewPresenterImpl implements IWebViewPresenter {
         void goBack();
 
         void goFoward();
+
+        void copyLink(String url);
+
+        void showToast(Toast toast);
+
+        void openBrowser(Uri uri);
+
+        void openShare(String url);
 
         void onProgressChanged(int progress);
 
