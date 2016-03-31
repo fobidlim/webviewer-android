@@ -29,9 +29,9 @@ import android.view.WindowManager;
 import android.webkit.WebChromeClient;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
-import android.widget.LinearLayout;
 import android.widget.PopupWindow;
 import android.widget.ProgressBar;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -62,7 +62,7 @@ public class WebViewerActivity extends AppCompatActivity implements WebViewPrese
 
     // PopupWindow
     private PopupWindow mPopupMenu;
-    private LinearLayout mLlControlButtons;
+    private RelativeLayout mLlControlButtons;
     private AppCompatImageButton mBtnMore;
     private AppCompatImageButton mBtnBack;
     private AppCompatImageButton mBtnFoward;
@@ -136,7 +136,7 @@ public class WebViewerActivity extends AppCompatActivity implements WebViewPrese
         mPopupMenu.setContentView(view);
 //        mPopupMenu.setOutsideTouchable(true);
 
-        mLlControlButtons = (LinearLayout) view.findViewById(R.id.popup_menu_ll_control_buttons);
+        mLlControlButtons = (RelativeLayout) view.findViewById(R.id.popup_menu_rl_arrows);
         mBtnBack = (AppCompatImageButton) view.findViewById(R.id.popup_menu_btn_back);
         mBtnFoward = (AppCompatImageButton) view.findViewById(R.id.popup_menu_btn_forward);
 
