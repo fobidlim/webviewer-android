@@ -134,7 +134,8 @@ public class WebViewerActivity extends AppCompatActivity implements WebViewPrese
         mPopupMenu = new PopupWindow(this);
 
         mPopupMenu.setContentView(view);
-//        mPopupMenu.setOutsideTouchable(true);
+        mPopupMenu.setOutsideTouchable(true);
+        mPopupMenu.setFocusable(true);
 
         mLlControlButtons = (RelativeLayout) view.findViewById(R.id.popup_menu_rl_arrows);
         mBtnBack = (AppCompatImageButton) view.findViewById(R.id.popup_menu_btn_back);
