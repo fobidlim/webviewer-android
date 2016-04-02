@@ -23,7 +23,7 @@ import android.widget.PopupWindow;
  * author @Fobid
  */
 public interface IWebViewPresenter {
-    void verifyAvailableUrl(String url);
+    void validateUrl(String url);
 
     void onBackPressed(PopupWindow menu, WebView webView);
 

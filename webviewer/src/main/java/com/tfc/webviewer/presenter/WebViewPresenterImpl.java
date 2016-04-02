@@ -15,15 +15,19 @@
  */
 package com.tfc.webviewer.presenter;
 
-import android.annotation.SuppressLint;
 import android.content.Context;
 import android.net.Uri;
+import android.text.TextUtils;
 import android.webkit.URLUtil;
 import android.webkit.WebView;
 import android.widget.PopupWindow;
 import android.widget.Toast;
 
 import com.tfc.webviewer.R;
+import com.tfc.webviewer.util.UrlUtils;
+
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 
 /**
  * author @Fobid
@@ -38,20 +42,38 @@ public class WebViewPresenterImpl implements IWebViewPresenter {
         mView = view;
     }
 
+    private Toast makeToast(CharSequence text) {
+        return Toast.makeText(mContext, text, Toast.LENGTH_LONG);
+    }
+
     @Override
-    public void verifyAvailableUrl(String url) {
+    public void validateUrl(final String url) {
         if (URLUtil.isValidUrl(url)) {
             mView.loadUrl(url);
         } else {
-            String tempUrl = url;
-            tempUrl = "http://" + url;
+            if (!TextUtils.isEmpty(url)) {
+                String tempUrl = url;
+                if (!URLUtil.isHttpUrl(url) && !URLUtil.isHttpsUrl(url)) {
+                    tempUrl = "http://" + url;
+                }
+                String host = UrlUtils.getHost(tempUrl);
 
-            if (URLUtil.isValidUrl(tempUrl)) {
-                mView.loadUrl(tempUrl);
+                if (URLUtil.isValidUrl(tempUrl)) {
+                    mView.loadUrl(tempUrl);
+                    mView.setToolbarTitle(host);
+                } else try {
+                    tempUrl = "http://www.google.com/search?q=" + URLEncoder.encode(url, "UTF-8");
+
+                    mView.loadUrl(tempUrl);
+                    mView.setToolbarTitle(UrlUtils.getHost(tempUrl));
+                } catch (UnsupportedEncodingException e) {
+                    e.printStackTrace();
+
+                    mView.showToast(makeToast(mContext.getString(R.string.invalid_url)));
+                    mView.close();
+                }
             } else {
-                @SuppressLint("ShowToast")
-                Toast toast = Toast.makeText(mContext, mContext.getString(R.string.invalid_url), Toast.LENGTH_LONG);
-                mView.showToast(toast);
+                mView.showToast(makeToast(mContext.getString(R.string.invalid_url)));
                 mView.close();
             }
         }
@@ -71,7 +93,7 @@ public class WebViewPresenterImpl implements IWebViewPresenter {
     @Override
     public void onReceivedTitle(String title, String url) {
         mView.setToolbarTitle(title);
-        mView.setToolbarUrl(url);
+        mView.setToolbarUrl(UrlUtils.getHost(url));
     }
 
     @Override
@@ -123,9 +145,7 @@ public class WebViewPresenterImpl implements IWebViewPresenter {
     public void onClickCopyLink(String url) {
         mView.copyLink(url);
 
-        @SuppressLint("ShowToast")
-        Toast toast = Toast.makeText(mContext, mContext.getString(R.string.copy_to_clipboard), Toast.LENGTH_LONG);
-        mView.showToast(toast);
+        mView.showToast(makeToast(mContext.getString(R.string.copy_to_clipboard)));
     }
 
     @Override

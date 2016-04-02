@@ -38,7 +38,6 @@ import android.widget.Toast;
 import com.tfc.webviewer.R;
 import com.tfc.webviewer.presenter.WebViewPresenterImpl;
 import com.tfc.webviewer.util.ClipboardUtils;
-import com.tfc.webviewer.util.UrlUtils;
 
 /**
  * author @Fobid
@@ -82,7 +81,7 @@ public class WebViewerActivity extends AppCompatActivity implements WebViewPrese
         bindView();
 
         mPresenter = new WebViewPresenterImpl(this, this);
-        mPresenter.verifyAvailableUrl(mUrl);
+        mPresenter.validateUrl(mUrl);
     }
 
     @Override
@@ -242,7 +241,7 @@ public class WebViewerActivity extends AppCompatActivity implements WebViewPrese
 
     @Override
     public void setToolbarUrl(String url) {
-        mTvUrl.setText(UrlUtils.getHost(url));
+        mTvUrl.setText(url);
     }
 
     @Override
