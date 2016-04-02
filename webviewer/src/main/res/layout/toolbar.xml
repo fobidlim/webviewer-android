@@ -33,7 +33,7 @@
                 android:layout_marginBottom="1.5dp"
                 android:layout_marginTop="1.5dp"
                 android:ellipsize="end"
-                android:textSize="14dp"
+                android:textSize="18dp"
                 android:gravity="center"
                 android:includeFontPadding="false"
                 android:singleLine="true" />
@@ -48,6 +48,7 @@
                 android:gravity="center"
                 android:includeFontPadding="false"
                 android:paddingLeft="2dp"
+                android:textSize="14dp"
                 android:paddingRight="2dp"
                 android:singleLine="true" />
         </LinearLayout>
