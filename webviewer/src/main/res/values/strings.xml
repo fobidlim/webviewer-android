@@ -7,5 +7,7 @@
     <string name="menu_open_with_other_browser">다른 브라우저로 열기</string>
     <string name="menu_share">다른 앱으로 공유</string>
 
+    <!-- Message -->
     <string name="copy_to_clipboard">복사되었습니다</string>
+    <string name="invalid_url">잘못된 주소입니다</string>
 </resources>

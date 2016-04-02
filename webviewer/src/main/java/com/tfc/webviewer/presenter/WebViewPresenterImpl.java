@@ -18,6 +18,7 @@ package com.tfc.webviewer.presenter;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.net.Uri;
+import android.webkit.URLUtil;
 import android.webkit.WebView;
 import android.widget.PopupWindow;
 import android.widget.Toast;
@@ -29,10 +30,31 @@ import com.tfc.webviewer.R;
  */
 public class WebViewPresenterImpl implements IWebViewPresenter {
 
+    private final Context mContext;
     private final View mView;
 
-    public WebViewPresenterImpl(View view) {
+    public WebViewPresenterImpl(Context context, View view) {
+        mContext = context;
         mView = view;
+    }
+
+    @Override
+    public void verifyAvailableUrl(String url) {
+        if (URLUtil.isValidUrl(url)) {
+            mView.loadUrl(url);
+        } else {
+            String tempUrl = url;
+            tempUrl = "http://" + url;
+
+            if (URLUtil.isValidUrl(tempUrl)) {
+                mView.loadUrl(tempUrl);
+            } else {
+                @SuppressLint("ShowToast")
+                Toast toast = Toast.makeText(mContext, mContext.getString(R.string.invalid_url), Toast.LENGTH_LONG);
+                mView.showToast(toast);
+                mView.close();
+            }
+        }
     }
 
     @Override
@@ -98,11 +120,11 @@ public class WebViewPresenterImpl implements IWebViewPresenter {
     }
 
     @Override
-    public void onClickCopyLink(Context context, String url) {
+    public void onClickCopyLink(String url) {
         mView.copyLink(url);
 
         @SuppressLint("ShowToast")
-        Toast toast = Toast.makeText(context, context.getString(R.string.copy_to_clipboard), Toast.LENGTH_LONG);
+        Toast toast = Toast.makeText(mContext, mContext.getString(R.string.copy_to_clipboard), Toast.LENGTH_LONG);
         mView.showToast(toast);
     }
 
@@ -117,6 +139,8 @@ public class WebViewPresenterImpl implements IWebViewPresenter {
     }
 
     public interface View {
+        void loadUrl(String url);
+
         void close();
 
         void closeMenu();

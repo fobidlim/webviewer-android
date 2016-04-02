@@ -79,10 +79,10 @@ public class WebViewerActivity extends AppCompatActivity implements WebViewPrese
         mUrl = getIntent().getStringExtra(EXTRA_URL);
 
         setContentView(R.layout.a_web_viewer);
-
-        mPresenter = new WebViewPresenterImpl(this);
-
         bindView();
+
+        mPresenter = new WebViewPresenterImpl(this, this);
+        mPresenter.verifyAvailableUrl(mUrl);
     }
 
     @Override
@@ -104,8 +104,6 @@ public class WebViewerActivity extends AppCompatActivity implements WebViewPrese
         mTvTitle = (TextView) findViewById(R.id.toolbar_tv_title);
         mTvUrl = (TextView) findViewById(R.id.toolbar_tv_url);
 
-        mPresenter.onReceivedTitle("", mUrl);
-
         mProgressBar = (ProgressBar) findViewById(R.id.a_web_viewer_pb);
         mSwipeRefreshLayout = (SwipeRefreshLayout) findViewById(R.id.a_web_viewer_srl);
         mWebView = (WebView) findViewById(R.id.a_web_viewer_wv);
@@ -113,7 +111,6 @@ public class WebViewerActivity extends AppCompatActivity implements WebViewPrese
 
         mWebView.setWebChromeClient(new MyWebChromeClient());
         mWebView.setWebViewClient(new MyWebViewClient());
-        mWebView.loadUrl(mUrl);
 
         mBtnMore = (AppCompatImageButton) findViewById(R.id.toolbar_btn_more);
 
@@ -147,6 +144,12 @@ public class WebViewerActivity extends AppCompatActivity implements WebViewPrese
         view.findViewById(R.id.popup_menu_btn_copy_link).setOnClickListener(this);
         view.findViewById(R.id.popup_menu_btn_open_with_other_browser).setOnClickListener(this);
         view.findViewById(R.id.popup_menu_btn_share).setOnClickListener(this);
+    }
+
+    @Override
+    public void loadUrl(String url) {
+        mWebView.loadUrl(url);
+        mPresenter.onReceivedTitle("", mUrl);
     }
 
     @Override
@@ -292,7 +295,7 @@ public class WebViewerActivity extends AppCompatActivity implements WebViewPrese
             onRefresh();
         } else if (R.id.popup_menu_btn_copy_link == resId) {
             closeMenu();
-            mPresenter.onClickCopyLink(this, mWebView.getUrl());
+            mPresenter.onClickCopyLink(mWebView.getUrl());
         } else if (R.id.popup_menu_btn_open_with_other_browser == resId) {
             closeMenu();
             mPresenter.onClickOpenBrowser(Uri.parse(mWebView.getUrl()));
