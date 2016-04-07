@@ -2,12 +2,13 @@
     <string name="app_name">WebViewer</string>
 
     <!-- Menu -->
-    <string name="menu_refresh">새로 고침</string>
-    <string name="menu_copy_link">링크 복사</string>
-    <string name="menu_open_with_other_browser">다른 브라우저로 열기</string>
-    <string name="menu_share">다른 앱으로 공유</string>
+    <string name="menu_refresh">Refresh</string>
+    <string name="menu_copy_link">Copy Link</string>
+    <string name="menu_open_with_other_browser">Open With Other Browser</string>
+    <string name="menu_share">Share</string>
 
     <!-- Message -->
-    <string name="copy_to_clipboard">복사되었습니다</string>
-    <string name="invalid_url">잘못된 URL입니다</string>
+    <string name="message_copy_to_clipboard">Copy To Clipboard</string>
+    <string name="message_invalid_url">Wrong URL</string>
+    <string name="message_download_started">Download Started</string>
 </resources>

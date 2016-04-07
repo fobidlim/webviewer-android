@@ -16,16 +16,21 @@
 package com.tfc.webviewer.ui;
 
 import android.annotation.SuppressLint;
+import android.app.DownloadManager;
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
+import android.os.Environment;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.AppCompatImageButton;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.WindowManager;
+import android.webkit.DownloadListener;
 import android.webkit.WebChromeClient;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
@@ -39,11 +44,13 @@ import com.tfc.webviewer.R;
 import com.tfc.webviewer.presenter.WebViewPresenterImpl;
 import com.tfc.webviewer.util.ClipboardUtils;
 
+import java.io.File;
+
 /**
  * author @Fobid
  */
 public class WebViewerActivity extends AppCompatActivity implements WebViewPresenterImpl.View,
-        View.OnClickListener, SwipeRefreshLayout.OnRefreshListener {
+        View.OnClickListener, SwipeRefreshLayout.OnRefreshListener, DownloadListener {
 
     public static final String EXTRA_URL = "url";
 
@@ -110,6 +117,7 @@ public class WebViewerActivity extends AppCompatActivity implements WebViewPrese
 
         mWebView.setWebChromeClient(new MyWebChromeClient());
         mWebView.setWebViewClient(new MyWebViewClient());
+        mWebView.setDownloadListener(this);
 
         mBtnMore = (AppCompatImageButton) findViewById(R.id.toolbar_btn_more);
 
@@ -271,7 +279,35 @@ public class WebViewerActivity extends AppCompatActivity implements WebViewPrese
 
     @Override
     public void onDownloadStart(String url, String userAgent, String contentDisposition, String mimeType, long contentLength) {
+        try {
+            String[] fnm = url.split("/");
+            String fileName = fnm[fnm.length - 1];
+            String host = fnm[2];
 
+            DownloadManager mDownloadManager = (DownloadManager) getSystemService(Context.DOWNLOAD_SERVICE);
+            Uri uri = Uri.parse(url);
+            DownloadManager.Request mRequest = new DownloadManager.Request(uri);
+            // mRequest.setAllowedNetworkTypes(DownloadManager.Request.NETWORK_WIFI); //NETWORK_MOBILE
+            // mRequest.setAllowedOverRoaming(false);
+            mRequest.setTitle(fileName);
+            mRequest.setDescription(host);
+            mRequest.setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS, fileName);
+            File pathExternalPublicDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
+            pathExternalPublicDir.mkdirs();
+            // mRequest.setMimeType(HTTP.OCTET_STREAM_TYPE);
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
+                mRequest.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED);
+            } else {
+                //noinspection deprecation
+                mRequest.setShowRunningNotification(true);
+            }
+            mRequest.setVisibleInDownloadsUi(true);
+            long downloadId = mDownloadManager.enqueue(mRequest);
+
+            Toast.makeText(this, getString(R.string.message_download_started), Toast.LENGTH_SHORT).show();
+        } catch (SecurityException e) {
+            throw new SecurityException("No permission allowed: android.permission.WRITE_EXTERNAL_STORAGE");
+        }
     }
 
     @Override

@@ -69,11 +69,11 @@ public class WebViewPresenterImpl implements IWebViewPresenter {
                 } catch (UnsupportedEncodingException e) {
                     e.printStackTrace();
 
-                    mView.showToast(makeToast(mContext.getString(R.string.invalid_url)));
+                    mView.showToast(makeToast(mContext.getString(R.string.message_invalid_url)));
                     mView.close();
                 }
             } else {
-                mView.showToast(makeToast(mContext.getString(R.string.invalid_url)));
+                mView.showToast(makeToast(mContext.getString(R.string.message_invalid_url)));
                 mView.close();
             }
         }
@@ -145,7 +145,7 @@ public class WebViewPresenterImpl implements IWebViewPresenter {
     public void onClickCopyLink(String url) {
         mView.copyLink(url);
 
-        mView.showToast(makeToast(mContext.getString(R.string.copy_to_clipboard)));
+        mView.showToast(makeToast(mContext.getString(R.string.message_copy_to_clipboard)));
     }
 
     @Override
@@ -206,7 +206,5 @@ public class WebViewPresenterImpl implements IWebViewPresenter {
         void onLoadResource(String url);
 
         void onPageCommitVisible(String url);
-
-        void onDownloadStart(String url, String userAgent, String contentDisposition, String mimeType, long contentLength);
     }
 }
