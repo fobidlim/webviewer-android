@@ -9,20 +9,20 @@
     <option name="myNullables">
       <value>
         <list size="4">
-          <item class="java.lang.String" index="0" itemvalue="org.jetbrains.annotations.Nullable" />
-          <item class="java.lang.String" index="1" itemvalue="javax.annotation.Nullable" />
-          <item class="java.lang.String" index="2" itemvalue="edu.umd.cs.findbugs.annotations.Nullable" />
-          <item class="java.lang.String" index="3" itemvalue="android.support.annotation.Nullable" />
+          <item index="0" class="java.lang.String" itemvalue="org.jetbrains.annotations.Nullable" />
+          <item index="1" class="java.lang.String" itemvalue="javax.annotation.Nullable" />
+          <item index="2" class="java.lang.String" itemvalue="edu.umd.cs.findbugs.annotations.Nullable" />
+          <item index="3" class="java.lang.String" itemvalue="android.support.annotation.Nullable" />
         </list>
       </value>
     </option>
     <option name="myNotNulls">
       <value>
         <list size="4">
-          <item class="java.lang.String" index="0" itemvalue="org.jetbrains.annotations.NotNull" />
-          <item class="java.lang.String" index="1" itemvalue="javax.annotation.Nonnull" />
-          <item class="java.lang.String" index="2" itemvalue="edu.umd.cs.findbugs.annotations.NonNull" />
-          <item class="java.lang.String" index="3" itemvalue="android.support.annotation.NonNull" />
+          <item index="0" class="java.lang.String" itemvalue="org.jetbrains.annotations.NotNull" />
+          <item index="1" class="java.lang.String" itemvalue="javax.annotation.Nonnull" />
+          <item index="2" class="java.lang.String" itemvalue="edu.umd.cs.findbugs.annotations.NonNull" />
+          <item index="3" class="java.lang.String" itemvalue="android.support.annotation.NonNull" />
         </list>
       </value>
     </option>
@@ -37,7 +37,7 @@
     <ConfirmationsSetting id="Add" value="0" />
     <ConfirmationsSetting id="Remove" value="0" />
   </component>
-  <component name="ProjectRootManager" version="2" languageLevel="JDK_1_7" default="true" assert-keyword="true" jdk-15="true" project-jdk-name="1.8" project-jdk-type="JavaSDK">
+  <component name="ProjectRootManager" version="2" languageLevel="JDK_1_8" default="true" assert-keyword="true" jdk-15="true" project-jdk-name="1.8" project-jdk-type="JavaSDK">
     <output url="file://$PROJECT_DIR$/build/classes" />
   </component>
   <component name="ProjectType">

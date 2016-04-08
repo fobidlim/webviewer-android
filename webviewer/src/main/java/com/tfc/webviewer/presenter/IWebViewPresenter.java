@@ -44,4 +44,8 @@ public interface IWebViewPresenter {
     void onClickOpenBrowser(Uri uri);
 
     void onClickShare(String url);
+
+    void onDownloadStart(String url, String userAgent, String contentDisposition, String mimeType, long contentLength);
+
+    void onLongClick(WebView.HitTestResult result);
 }

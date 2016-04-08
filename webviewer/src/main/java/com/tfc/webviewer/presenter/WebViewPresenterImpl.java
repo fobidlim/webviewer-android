@@ -15,8 +15,12 @@
  */
 package com.tfc.webviewer.presenter;
 
+import android.annotation.SuppressLint;
+import android.app.DownloadManager;
 import android.content.Context;
 import android.net.Uri;
+import android.os.Build;
+import android.os.Environment;
 import android.text.TextUtils;
 import android.webkit.URLUtil;
 import android.webkit.WebView;
@@ -26,6 +30,7 @@ import android.widget.Toast;
 import com.tfc.webviewer.R;
 import com.tfc.webviewer.util.UrlUtils;
 
+import java.io.File;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 
@@ -156,6 +161,79 @@ public class WebViewPresenterImpl implements IWebViewPresenter {
     @Override
     public void onClickShare(String url) {
         mView.openShare(url);
+    }
+
+    @Override
+    public void onDownloadStart(String url, String userAgent, String contentDisposition, String mimeType, long contentLength) {
+        try {
+            String[] fnm = url.split("/");
+            String fileName = fnm[fnm.length - 1];
+            String host = fnm[2];
+
+            DownloadManager dm = (DownloadManager) mContext.getSystemService(Context.DOWNLOAD_SERVICE);
+            Uri uri = Uri.parse(url);
+            DownloadManager.Request request = new DownloadManager.Request(uri);
+            // mRequest.setAllowedNetworkTypes(DownloadManager.Request.NETWORK_WIFI); //NETWORK_MOBILE
+            // mRequest.setAllowedOverRoaming(false);
+            request.setTitle(fileName);
+            request.setDescription(host);
+            request.setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS, fileName);
+            File downloadsDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
+
+            if (!downloadsDir.exists()) {
+                //noinspection ResultOfMethodCallIgnored
+                downloadsDir.mkdirs();
+            }
+            // mRequest.setMimeType(HTTP.OCTET_STREAM_TYPE);
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
+                request.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED);
+            } else {
+                //noinspection deprecation
+                request.setShowRunningNotification(true);
+            }
+            request.setVisibleInDownloadsUi(true);
+            dm.enqueue(request);
+
+            @SuppressLint("ShowToast")
+            Toast toast = Toast.makeText(mContext, mContext.getString(R.string.message_download_started), Toast.LENGTH_SHORT);
+
+            mView.showToast(toast);
+        } catch (SecurityException e) {
+            throw new SecurityException("No permission allowed: android.permission.WRITE_EXTERNAL_STORAGE");
+        }
+    }
+
+    @Override
+    public void onLongClick(WebView.HitTestResult result) {
+        int type = result.getType();
+        String extra = result.getExtra();
+
+        switch (type) {
+            case WebView.HitTestResult.EDIT_TEXT_TYPE: {
+                break;
+            }
+            case WebView.HitTestResult.EMAIL_TYPE: {
+                break;
+            }
+            case WebView.HitTestResult.GEO_TYPE: {
+                break;
+            }
+            case WebView.HitTestResult.IMAGE_TYPE: {
+                break;
+            }
+            case WebView.HitTestResult.PHONE_TYPE: {
+                break;
+            }
+            case WebView.HitTestResult.SRC_ANCHOR_TYPE: {
+                break;
+            }
+            case WebView.HitTestResult.SRC_IMAGE_ANCHOR_TYPE: {
+                break;
+            }
+            case WebView.HitTestResult.UNKNOWN_TYPE: {
+                break;
+            }
+        }
     }
 
     public interface View {

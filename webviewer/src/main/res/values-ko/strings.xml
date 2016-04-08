@@ -10,5 +10,5 @@
     <!-- Message -->
     <string name="message_copy_to_clipboard">복사되었습니다</string>
     <string name="message_invalid_url">잘못된 URL입니다</string>
-    <string name="message_download_started">다운로드가 시작되었습니다</string>
+    <string name="message_download_started">다운로드중…</string>
 </resources>

@@ -10,5 +10,5 @@
     <!-- Message -->
     <string name="message_copy_to_clipboard">Copy To Clipboard</string>
     <string name="message_invalid_url">Wrong URL</string>
-    <string name="message_download_started">Download Started</string>
+    <string name="message_download_started">Downloading…</string>
 </resources>
