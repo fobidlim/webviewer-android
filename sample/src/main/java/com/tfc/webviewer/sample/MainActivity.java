@@ -15,6 +15,7 @@ public class MainActivity extends AppCompatActivity {
 
         Intent intent = new Intent(this, WebViewerActivity.class);
         intent.putExtra(WebViewerActivity.EXTRA_URL, "github.com/fobid");
+//        intent.putExtra(WebViewerActivity.EXTRA_URL, "grap.io");
         startActivity(intent);
     }
 }
