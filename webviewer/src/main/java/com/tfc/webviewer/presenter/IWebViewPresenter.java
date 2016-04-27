@@ -16,8 +16,10 @@
 package com.tfc.webviewer.presenter;
 
 import android.net.Uri;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.webkit.WebView;
 import android.widget.PopupWindow;
+import android.widget.ProgressBar;
 
 /**
  * author @Fobid
@@ -29,19 +31,11 @@ public interface IWebViewPresenter {
 
     void onReceivedTitle(String title, String url);
 
-    void onClickClose();
-
-    void onClickMenu(PopupWindow menu);
+    void onClick(int resId, String url, PopupWindow popupWindow);
 
     void setEnabledGoBackAndGoFoward(boolean enabledGoBack, boolean enabledGoFoward);
 
-    void onClickGoBack();
+    void onLongClick(WebView.HitTestResult result);
 
-    void onClickGoFoward();
-
-    void onClickCopyLink(String url);
-
-    void onClickOpenBrowser(Uri uri);
-
-    void onClickShare(String url);
+    void onProgressChanged(SwipeRefreshLayout swipeRefreshLayout, int progress);
 }

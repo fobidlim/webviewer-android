@@ -16,22 +16,25 @@
 package com.tfc.webviewer.ui;
 
 import android.annotation.SuppressLint;
-import android.app.DownloadManager;
-import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
-import android.graphics.Bitmap;
+import android.content.res.Configuration;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.Environment;
 import android.support.v4.widget.SwipeRefreshLayout;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.AppCompatImageButton;
+import android.view.ContextMenu;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.WindowManager;
 import android.webkit.DownloadListener;
+import android.webkit.JsResult;
+import android.webkit.ValueCallback;
 import android.webkit.WebChromeClient;
+import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.PopupWindow;
@@ -43,18 +46,22 @@ import android.widget.Toast;
 import com.tfc.webviewer.R;
 import com.tfc.webviewer.presenter.WebViewPresenterImpl;
 import com.tfc.webviewer.util.ClipboardUtils;
-
-import java.io.File;
+import com.tfc.webviewer.util.FileUtils;
 
 /**
  * author @Fobid
  */
 public class WebViewerActivity extends AppCompatActivity implements WebViewPresenterImpl.View,
-        View.OnClickListener, SwipeRefreshLayout.OnRefreshListener, DownloadListener {
+        View.OnClickListener, SwipeRefreshLayout.OnRefreshListener, DownloadListener, View.OnCreateContextMenuListener {
+
+    private static final int REQUEST_FILE_CHOOSER = 0;
+    private static final int REQUEST_FILE_CHOOSER_FOR_LOLLIPOP = 1;
 
     public static final String EXTRA_URL = "url";
 
     private String mUrl;
+    private ValueCallback<Uri[]> filePathCallbackLollipop;
+    private ValueCallback<Uri> filePathCallbackNormal;
 
     private WebViewPresenterImpl mPresenter;
 
@@ -92,6 +99,20 @@ public class WebViewerActivity extends AppCompatActivity implements WebViewPrese
     }
 
     @Override
+    public void onConfigurationChanged(Configuration newConfig) {
+        super.onConfigurationChanged(newConfig);
+    }
+
+    @Override
+    public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
+        super.onCreateContextMenu(menu, v, menuInfo);
+
+        WebView.HitTestResult result = mWebView.getHitTestResult();
+
+        mPresenter.onLongClick(result);
+    }
+
+    @Override
     protected void onSaveInstanceState(Bundle outState) {
         if (mUrl != null) {
             outState.putString(EXTRA_URL, mUrl);
@@ -105,6 +126,32 @@ public class WebViewerActivity extends AppCompatActivity implements WebViewPrese
         super.onRestoreInstanceState(savedInstanceState);
     }
 
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        switch (requestCode) {
+            case REQUEST_FILE_CHOOSER: {
+                if (filePathCallbackNormal == null) {
+                    return;
+                }
+                Uri result = (data == null || resultCode != RESULT_OK) ? null : data.getData();
+                filePathCallbackNormal.onReceiveValue(result);
+                filePathCallbackNormal = null;
+                break;
+            }
+            case REQUEST_FILE_CHOOSER_FOR_LOLLIPOP: {
+                if (filePathCallbackLollipop == null) {
+                    return;
+                }
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                    filePathCallbackLollipop.onReceiveValue(WebChromeClient.FileChooserParams.parseResult(resultCode, data));
+                }
+                filePathCallbackLollipop = null;
+                break;
+            }
+        }
+    }
+
+    @SuppressLint("SetJavaScriptEnabled")
     private void bindView() {
         // Toolbar
         mTvTitle = (TextView) findViewById(R.id.toolbar_tv_title);
@@ -115,9 +162,15 @@ public class WebViewerActivity extends AppCompatActivity implements WebViewPrese
         mWebView = (WebView) findViewById(R.id.a_web_viewer_wv);
         mSwipeRefreshLayout.setOnRefreshListener(this);
 
+        WebSettings webSettings = mWebView.getSettings();
+        webSettings.setJavaScriptEnabled(true);
+        webSettings.setJavaScriptCanOpenWindowsAutomatically(true);
+        webSettings.setDomStorageEnabled(true);
+
         mWebView.setWebChromeClient(new MyWebChromeClient());
         mWebView.setWebViewClient(new MyWebViewClient());
         mWebView.setDownloadListener(this);
+        mWebView.setOnCreateContextMenuListener(this);
 
         mBtnMore = (AppCompatImageButton) findViewById(R.id.toolbar_btn_more);
 
@@ -238,11 +291,6 @@ public class WebViewerActivity extends AppCompatActivity implements WebViewPrese
     }
 
     @Override
-    public void onProgressChanged(int progress) {
-
-    }
-
-    @Override
     public void setToolbarTitle(String title) {
         mTvTitle.setText(title);
     }
@@ -253,91 +301,30 @@ public class WebViewerActivity extends AppCompatActivity implements WebViewPrese
     }
 
     @Override
-    public void onReceivedTouchIconUrl(String url, boolean precomposed) {
+    public void onDownloadStart(String url) {
+        onDownloadStart(url, null, null, null, 0);
+    }
 
+
+    @Override
+    public void setProgressBar(int progress) {
+        mProgressBar.setProgress(progress);
     }
 
     @Override
-    public void onPageStarted(String url) {
-
+    public void setRefreshing(boolean refreshing) {
+        mSwipeRefreshLayout.setRefreshing(refreshing);
     }
 
     @Override
-    public void onPageFinished(String url) {
-
-    }
-
-    @Override
-    public void onLoadResource(String url) {
-
-    }
-
-    @Override
-    public void onPageCommitVisible(String url) {
-
-    }
-
-    @Override
-    public void onDownloadStart(String url, String userAgent, String contentDisposition, String mimeType, long contentLength) {
-        try {
-            String[] fnm = url.split("/");
-            String fileName = fnm[fnm.length - 1];
-            String host = fnm[2];
-
-            DownloadManager mDownloadManager = (DownloadManager) getSystemService(Context.DOWNLOAD_SERVICE);
-            Uri uri = Uri.parse(url);
-            DownloadManager.Request mRequest = new DownloadManager.Request(uri);
-            // mRequest.setAllowedNetworkTypes(DownloadManager.Request.NETWORK_WIFI); //NETWORK_MOBILE
-            // mRequest.setAllowedOverRoaming(false);
-            mRequest.setTitle(fileName);
-            mRequest.setDescription(host);
-            mRequest.setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS, fileName);
-            File pathExternalPublicDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
-            pathExternalPublicDir.mkdirs();
-            // mRequest.setMimeType(HTTP.OCTET_STREAM_TYPE);
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-                mRequest.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED);
-            } else {
-                //noinspection deprecation
-                mRequest.setShowRunningNotification(true);
-            }
-            mRequest.setVisibleInDownloadsUi(true);
-            long downloadId = mDownloadManager.enqueue(mRequest);
-
-            Toast.makeText(this, getString(R.string.message_download_started), Toast.LENGTH_SHORT).show();
-        } catch (SecurityException e) {
-            throw new SecurityException("No permission allowed: android.permission.WRITE_EXTERNAL_STORAGE");
-        }
+    public void onDownloadStart(String url, String userAgent, String contentDisposition,
+                                String mimeType, long contentLength) {
+        FileUtils.downloadFile(this, url);
     }
 
     @Override
     public void onClick(View v) {
-        int resId = v.getId();
-
-        if (R.id.toolbar_btn_close == resId) {
-            closeMenu();
-            mPresenter.onClickClose();
-        } else if (R.id.toolbar_btn_more == resId) {
-            mPresenter.onClickMenu(mPopupMenu);
-        } else if (R.id.popup_menu_btn_back == resId) {
-            closeMenu();
-            mPresenter.onClickGoBack();
-        } else if (R.id.popup_menu_btn_forward == resId) {
-            closeMenu();
-            mPresenter.onClickGoFoward();
-        } else if (R.id.popup_menu_btn_refresh == resId) {
-            closeMenu();
-            onRefresh();
-        } else if (R.id.popup_menu_btn_copy_link == resId) {
-            closeMenu();
-            mPresenter.onClickCopyLink(mWebView.getUrl());
-        } else if (R.id.popup_menu_btn_open_with_other_browser == resId) {
-            closeMenu();
-            mPresenter.onClickOpenBrowser(Uri.parse(mWebView.getUrl()));
-        } else if (R.id.popup_menu_btn_share == resId) {
-            closeMenu();
-            mPresenter.onClickShare(mWebView.getUrl());
-        }
+        mPresenter.onClick(v.getId(), mWebView.getUrl(), mPopupMenu);
     }
 
     @Override
@@ -347,61 +334,99 @@ public class WebViewerActivity extends AppCompatActivity implements WebViewPrese
 
     public class MyWebChromeClient extends WebChromeClient {
 
+        // For Android < 3.0
+        @SuppressWarnings("unused")
+        public void openFileChooser(ValueCallback<Uri> uploadMsg) {
+            openFileChooser(uploadMsg, "");
+        }
+
+        // For Android 3.0+
+        public void openFileChooser(ValueCallback<Uri> uploadMsg,
+                                    @SuppressWarnings("UnusedParameters") String acceptType) {
+            filePathCallbackNormal = uploadMsg;
+            Intent i = new Intent(Intent.ACTION_GET_CONTENT);
+            i.addCategory(Intent.CATEGORY_OPENABLE);
+            i.setType("image/*");
+            startActivityForResult(Intent.createChooser(i, getString(R.string.select_image)),
+                    REQUEST_FILE_CHOOSER);
+        }
+
+        // For Android 5.0+
+        @Override
+        public boolean onShowFileChooser(WebView webView, ValueCallback<Uri[]> filePathCallback,
+                                         WebChromeClient.FileChooserParams fileChooserParams) {
+            if (filePathCallbackLollipop != null) {
+                filePathCallbackLollipop.onReceiveValue(null);
+                filePathCallbackLollipop = null;
+            }
+            filePathCallbackLollipop = filePathCallback;
+            Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
+            intent.addCategory(Intent.CATEGORY_OPENABLE);
+            intent.setType("image/*");
+
+            startActivityForResult(Intent.createChooser(intent, getString(R.string.select_image)),
+                    REQUEST_FILE_CHOOSER_FOR_LOLLIPOP);
+
+            return true;
+        }
+
+        @Override
+        public boolean onJsAlert(WebView view, String url, String message, final JsResult result) {
+            AlertDialog dialog = new AlertDialog.Builder(WebViewerActivity.this)
+                    .setMessage(message)
+                    .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            result.confirm();
+                        }
+                    })
+                    .create();
+            dialog.setCanceledOnTouchOutside(false);
+            dialog.show();
+
+            return true;
+        }
+
+        @Override
+        public boolean onJsConfirm(WebView view, String url, String message, final JsResult result) {
+            AlertDialog dialog = new AlertDialog.Builder(WebViewerActivity.this)
+                    .setMessage(message)
+                    .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            result.confirm();
+                        }
+                    })
+                    .setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            result.cancel();
+                        }
+                    })
+                    .create();
+            dialog.setCanceledOnTouchOutside(false);
+            dialog.show();
+
+            return true;
+        }
+
         @Override
         public void onProgressChanged(WebView view, int progress) {
-            if (mSwipeRefreshLayout.isRefreshing() && progress == 100) {
-                mSwipeRefreshLayout.post(new Runnable() {
-                    @Override
-                    public void run() {
-                        mSwipeRefreshLayout.setRefreshing(false);
-                    }
-                });
-            }
-
-            if (!mSwipeRefreshLayout.isRefreshing() && progress != 100) {
-                mSwipeRefreshLayout.post(new Runnable() {
-                    @Override
-                    public void run() {
-                        mSwipeRefreshLayout.setRefreshing(true);
-                    }
-                });
-            }
-
-            if (progress == 100) {
-                progress = 0;
-            }
-            mProgressBar.setProgress(progress);
+            mPresenter.onProgressChanged(mSwipeRefreshLayout, progress);
         }
 
         @Override
         public void onReceivedTitle(WebView view, String title) {
             mPresenter.onReceivedTitle(title, view.getUrl());
         }
-
-        @Override
-        public void onReceivedTouchIconUrl(WebView view, String url, boolean precomposed) {
-        }
     }
 
     public class MyWebViewClient extends WebViewClient {
 
         @Override
-        public void onPageStarted(WebView view, String url, Bitmap favicon) {
-            if (!url.contains("docs.google.com") && url.endsWith(".pdf")) {
-                mWebView.loadUrl("http://docs.google.com/gview?embedded=true&url=" + url);
-            }
-        }
-
-        @Override
         public void onPageFinished(WebView view, String url) {
             mPresenter.onReceivedTitle(view.getTitle(), url);
-
-//            requestCenterLayout();
-
             mPresenter.setEnabledGoBackAndGoFoward(view.canGoBack(), view.canGoForward());
-
-//            if (injectJavaScript != null)
-//                webView.loadUrl(injectJavaScript);
         }
 
         @Override
@@ -411,24 +436,18 @@ public class WebViewerActivity extends AppCompatActivity implements WebViewPrese
                 intent.setDataAndType(Uri.parse(url), "video/*");
                 intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                 view.getContext().startActivity(intent);
-                // If we return true, onPageStarted, onPageFinished won't be called.
+
                 return true;
-            } else if (url.startsWith("tel:") || url.startsWith("sms:") || url.startsWith("smsto:") || url.startsWith("mms:") || url.startsWith("mmsto:")) {
+            } else if (url.startsWith("tel:") || url.startsWith("sms:") || url.startsWith("smsto:")
+                    || url.startsWith("mms:") || url.startsWith("mmsto:")) {
                 Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
                 intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                 view.getContext().startActivity(intent);
-                return true; // If we return true, onPageStarted, onPageFinished won't be called.
+
+                return true;
             } else {
                 return super.shouldOverrideUrlLoading(view, url);
             }
-        }
-
-        @Override
-        public void onLoadResource(WebView view, String url) {
-        }
-
-        @Override
-        public void onPageCommitVisible(WebView view, String url) {
         }
     }
 

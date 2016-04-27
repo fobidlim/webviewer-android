@@ -1,1 +1,10 @@
-<manifest package="com.tfc.webviewer" />
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.tfc.webviewer">
+
+    <uses-permission android:name="android.permission.VIBRATE" />
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.DOWNLOAD_WITHOUT_NOTIFICATION" />
+
+</manifest>

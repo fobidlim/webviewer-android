@@ -10,5 +10,20 @@
     <!-- Message -->
     <string name="message_copy_to_clipboard">복사되었습니다</string>
     <string name="message_invalid_url">잘못된 URL입니다</string>
-    <string name="message_download_started">다운로드가 시작되었습니다</string>
+    <string name="message_download_started">다운로드중…</string>
+
+    <!-- Dialog items -->
+    <string name="open_in_new_tab">새 탭에서 열기</string>
+    <string name="copy_link">링크 주소 복사</string>
+    <string name="save_link">링크 저장</string>
+    <string name="save_image">이미지 저장</string>
+    <string name="open_image">이미지 열기</string>
+
+    <string name="copy_email">이메일 주소 복사</string>
+    <string name="copy_link_text">링크 텍스트 복사</string>
+
+    <string name="yes">확인</string>
+    <string name="no">취소</string>
+    <string name="select_image">이미지 선택</string>
+    <string name="loading">불러오는중…</string>
 </resources>

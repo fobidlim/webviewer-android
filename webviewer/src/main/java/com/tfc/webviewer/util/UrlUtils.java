@@ -22,12 +22,7 @@ import java.net.URL;
  * author @Fobid
  */
 public class UrlUtils {
-    public static String getHost(String url) {
-        try {
-            return new URL(url).getHost();
-        } catch (MalformedURLException e) {
-            e.printStackTrace();
-        }
-        return url;
+    public static String getHost(String url) throws MalformedURLException {
+        return new URL(url).getHost();
     }
 }
