@@ -564,6 +564,7 @@ public class WebViewerActivity extends AppCompatActivity implements WebViewPrese
 
                 Snackbar.make(mCoordinatorLayout, fileName + getString(R.string.downloaded_message),
                         Snackbar.LENGTH_LONG)
+                        .setDuration(getResources().getInteger(R.integer.snackbar_duration))
                         .setAction(getString(R.string.open), new View.OnClickListener() {
                             @Override
                             public void onClick(View v) {
