@@ -19,6 +19,7 @@ import android.annotation.SuppressLint;
 import android.app.DownloadManager;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Environment;
@@ -34,6 +35,7 @@ import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import com.tfc.webviewer.R;
+import com.tfc.webviewer.ui.WebViewerActivity;
 import com.tfc.webviewer.util.UrlUtils;
 
 import java.io.File;
@@ -182,14 +184,9 @@ public class WebViewPresenterImpl implements IWebViewPresenter {
         final String extra = result.getExtra();
 
         switch (type) {
-            case WebView.HitTestResult.EDIT_TEXT_TYPE: {
-                Log.d(TAG, "edit text longclicked");
-
-                break;
-            }
             case WebView.HitTestResult.EMAIL_TYPE: {
                 CharSequence[] items = new CharSequence[]{
-                        mContext.getString(R.string.open_in_new_tab),
+                        mContext.getString(R.string.send_email),
                         mContext.getString(R.string.copy_email),
                         mContext.getString(R.string.copy_link_text)
                 };
@@ -199,7 +196,7 @@ public class WebViewPresenterImpl implements IWebViewPresenter {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
                                 if (which == 0) {
-
+                                    mView.openEmail(extra);
                                 } else if (which == 1 || which == 2) {
                                     mView.copyLink(extra);
                                     mView.showToast(makeToast(mContext.getString(R.string.message_copy_to_clipboard)));
@@ -219,7 +216,6 @@ public class WebViewPresenterImpl implements IWebViewPresenter {
             case WebView.HitTestResult.SRC_IMAGE_ANCHOR_TYPE:
             case WebView.HitTestResult.IMAGE_TYPE: {
                 CharSequence[] items = new CharSequence[]{
-                        mContext.getString(R.string.open_in_new_tab),
                         mContext.getString(R.string.copy_link),
                         mContext.getString(R.string.save_link),
                         mContext.getString(R.string.save_image),
@@ -231,16 +227,14 @@ public class WebViewPresenterImpl implements IWebViewPresenter {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
                                 if (which == 0) {
-
-                                } else if (which == 1) {
                                     mView.copyLink(extra);
                                     mView.showToast(makeToast(mContext.getString(R.string.message_copy_to_clipboard)));
+                                } else if (which == 1) {
+                                    mView.onDownloadStart(extra);
                                 } else if (which == 2) {
                                     mView.onDownloadStart(extra);
                                 } else if (which == 3) {
-                                    mView.onDownloadStart(extra);
-                                } else if (which == 4) {
-
+                                    mView.openPopup(extra);
                                 }
                             }
                         })
@@ -252,7 +246,6 @@ public class WebViewPresenterImpl implements IWebViewPresenter {
             case WebView.HitTestResult.PHONE_TYPE:
             case WebView.HitTestResult.SRC_ANCHOR_TYPE: {
                 CharSequence[] items = new CharSequence[]{
-                        mContext.getString(R.string.open_in_new_tab),
                         mContext.getString(R.string.copy_link),
                         mContext.getString(R.string.copy_link_text),
                         mContext.getString(R.string.save_link)
@@ -263,14 +256,12 @@ public class WebViewPresenterImpl implements IWebViewPresenter {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
                                 if (which == 0) {
-
+                                    mView.copyLink(extra);
+                                    mView.showToast(makeToast(mContext.getString(R.string.message_copy_to_clipboard)));
                                 } else if (which == 1) {
                                     mView.copyLink(extra);
                                     mView.showToast(makeToast(mContext.getString(R.string.message_copy_to_clipboard)));
                                 } else if (which == 2) {
-                                    mView.copyLink(extra);
-                                    mView.showToast(makeToast(mContext.getString(R.string.message_copy_to_clipboard)));
-                                } else if (which == 3) {
                                     mView.onDownloadStart(extra);
                                 }
                             }
@@ -353,5 +344,9 @@ public class WebViewPresenterImpl implements IWebViewPresenter {
         void setProgressBar(int progress);
 
         void setRefreshing(boolean refreshing);
+
+        void openEmail(String email);
+
+        void openPopup(String url);
     }
 }
