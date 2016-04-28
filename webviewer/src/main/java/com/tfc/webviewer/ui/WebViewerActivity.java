@@ -165,6 +165,11 @@ public class WebViewerActivity extends AppCompatActivity implements WebViewPrese
         WebSettings webSettings = mWebView.getSettings();
         webSettings.setJavaScriptEnabled(true);
         webSettings.setJavaScriptCanOpenWindowsAutomatically(true);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
+            webSettings.setDisplayZoomControls(false);
+        }
+        webSettings.setBuiltInZoomControls(true);
+        webSettings.setSupportZoom(true);
         webSettings.setDomStorageEnabled(true);
 
         mWebView.setWebChromeClient(new MyWebChromeClient());
