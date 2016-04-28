@@ -1,3 +1,6 @@
+# WebViewer Library
+[![WebViewer Sample on Google Play Store](http://developer.android.com/images/brand/en_generic_rgb_wo_60.png)](https://play.google.com/store/apps/details?id=com.tfc.webviewer.sample)
+
 # Download
 Download [the latest JAR](https://repo1.maven.org/maven2/com/github/fobid/webviewer/0.70.0/webviewer-0.70.0.aar) or grab via Maven:
 ```
