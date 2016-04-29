@@ -18,14 +18,14 @@ compile 'com.github.fobid:webviewer:0.70.0'
 ```
 
 # Usage
-1. Include WebViewer into your `AndroidManifest.xml`.
+*1. Include WebViewer into your `AndroidManifest.xml`.*
 ```
 <activity
     android:name="com.tfc.webviewer.ui.WebViewerActivity"
     android:configChanges="orientation|screenSize" />
 ```
 
-2. Start `webViewerActivity` with URL.
+*2. Start `webViewerActivity` with URL.*
 ```
 String url = "https://www.github.com/fobid";
 // String url = "www.github.com/fobid";
