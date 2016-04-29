@@ -24,6 +24,7 @@ compile 'com.github.fobid:webviewer:0.70.0'
     android:name="com.tfc.webviewer.ui.WebViewerActivity"
     android:configChanges="orientation|screenSize" />
 ```
+
 2. Start `WebViewerActivity` with URL.
 ```
 String url = "https://www.github.com/fobid";
