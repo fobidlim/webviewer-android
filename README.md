@@ -19,24 +19,22 @@ compile 'com.github.fobid:webviewer:0.70.0'
 
 # Usage
  1. Include WebViewer into your `AndroidManifest.xml`.
-  
+```
+<activity
+    android:name="com.tfc.webviewer.ui.WebViewerActivity"
+    android:configChanges="orientation|screenSize" />
+```
 
-    <activity
-        android:name="com.tfc.webviewer.ui.WebViewerActivity"
-        android:configChanges="orientation|screenSize" />
+ 2. Start `webViewerActivity` with URL.
+```
+String url = "https://www.github.com/fobid";
+// String url = "www.github.com/fobid";
+// String url = "github.com/fobid";
 
- 2. Start `WebViewerActivity` with URL.
-
-
-    String url = "https://www.github.com/fobid";
-    // String url = "www.github.com/fobid";
-    // String url = "github.com/fobid";
-
-    Intent intent = new Intent(Context, WebViewerActivity.class);
-    intent.putExtra(WebViewerActivity.EXTRA_URL, url);
-    startActivity(intent);
-
-
+Intent intent = new Intent(Context, WebViewerActivity.class);
+intent.putExtra(WebViewerActivity.EXTRA_URL, url);
+startActivity(intent);
+```
 # License
 ```
 Copyright 2016 Fobid
