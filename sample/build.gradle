@@ -1,4 +1,19 @@
+buildscript {
+    repositories {
+        maven { url 'https://maven.fabric.io/public' }
+    }
+
+    dependencies {
+        classpath 'io.fabric.tools:gradle:1.+'
+    }
+}
 apply plugin: 'com.android.application'
+apply plugin: 'io.fabric'
+
+repositories {
+    maven { url 'https://maven.fabric.io/public' }
+}
+
 
 android {
     signingConfigs {
@@ -16,7 +31,7 @@ android {
         minSdkVersion 9
         targetSdkVersion 23
         versionCode 1
-        versionName "0.70.0"
+        versionName "0.70.1"
         signingConfig signingConfigs.config
     }
     buildTypes {
@@ -27,6 +42,13 @@ android {
     }
     productFlavors {
     }
+    dexOptions {
+        incremental true
+        javaMaxHeapSize "3g"
+    }
+    lintOptions {
+        abortOnError false
+    }
 }
 
 dependencies {
@@ -34,4 +56,7 @@ dependencies {
     testCompile 'junit:junit:4.12'
     compile 'com.android.support:appcompat-v7:23.3.0'
     compile project(':webviewer')
+    compile('com.crashlytics.sdk.android:crashlytics:2.5.5@aar') {
+        transitive = true;
+    }
 }
