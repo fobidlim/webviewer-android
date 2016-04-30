@@ -9,6 +9,10 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
 
+        <meta-data
+            android:name="io.fabric.ApiKey"
+            android:value="ffb7b7a428a411387def9226e354ff515ab73061" />
+
         <activity
             android:name=".MainActivity"
             android:windowSoftInputMode="stateAlwaysHidden">
@@ -25,4 +29,5 @@
             android:windowSoftInputMode="stateAlwaysHidden" />
     </application>
 
+    <uses-permission android:name="android.permission.INTERNET" />
 </manifest>
