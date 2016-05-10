@@ -29,4 +29,9 @@
     <string name="loading">불러오는중…</string>
     <string name="open">열기</string>
     <string name="downloaded_message">(이)가 다운로드됨</string>
+
+    <string name="write_permission_denied_title">저장 권한</string>
+    <string name="write_permission_denied_message">저장 권한이 거부되었습니다.\n[설정] > [권한]에서 권한을 활성화 해주세요.</string>
+    <string name="dialog_dismiss">닫기</string>
+    <string name="dialog_settings">설정</string>
 </resources>

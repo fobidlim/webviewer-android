@@ -29,4 +29,9 @@
     <string name="loading">Loading…</string>
     <string name="open">Open</string>
     <string name="downloaded_message"> is downloaded</string>
+
+    <string name="write_permission_denied_title">Unable to save</string>
+    <string name="write_permission_denied_message">You have denied the permission for writing. Please go to app settings and allow permission</string>
+    <string name="dialog_dismiss">DISMISS</string>
+    <string name="dialog_settings">SETTINGS</string>
 </resources>
