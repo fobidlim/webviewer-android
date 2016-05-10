@@ -15,6 +15,7 @@
  */
 package com.tfc.webviewer.ui;
 
+import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.DownloadManager;
 import android.content.BroadcastReceiver;
@@ -22,12 +23,15 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
+import android.provider.Settings;
+import android.support.annotation.NonNull;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.Snackbar;
 import android.support.v4.widget.SwipeRefreshLayout;
@@ -56,6 +60,7 @@ import com.tfc.webviewer.R;
 import com.tfc.webviewer.presenter.WebViewPresenterImpl;
 import com.tfc.webviewer.util.ClipboardUtils;
 import com.tfc.webviewer.util.FileUtils;
+import com.tfc.webviewer.util.PermissionUtils;
 
 /**
  * author @Fobid
@@ -67,6 +72,7 @@ public class WebViewerActivity extends AppCompatActivity implements WebViewPrese
     private static final String TAG = "WebViewerActivity";
     private static final int REQUEST_FILE_CHOOSER = 0;
     private static final int REQUEST_FILE_CHOOSER_FOR_LOLLIPOP = 1;
+    private static final int REQUEST_PERMISSION_SETTING = 2;
 
     public static final String EXTRA_URL = "url";
 
@@ -153,25 +159,38 @@ public class WebViewerActivity extends AppCompatActivity implements WebViewPrese
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        switch (requestCode) {
-            case REQUEST_FILE_CHOOSER: {
-                if (filePathCallbackNormal == null) {
-                    return;
+        if (RESULT_OK == resultCode) {
+            switch (requestCode) {
+                case REQUEST_FILE_CHOOSER: {
+                    if (filePathCallbackNormal == null) {
+                        return;
+                    }
+                    Uri result = data == null ? null : data.getData();
+                    filePathCallbackNormal.onReceiveValue(result);
+                    filePathCallbackNormal = null;
+                    break;
                 }
-                Uri result = (data == null || resultCode != RESULT_OK) ? null : data.getData();
-                filePathCallbackNormal.onReceiveValue(result);
-                filePathCallbackNormal = null;
-                break;
+                case REQUEST_FILE_CHOOSER_FOR_LOLLIPOP: {
+                    if (filePathCallbackLollipop == null) {
+                        return;
+                    }
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                        filePathCallbackLollipop.onReceiveValue(WebChromeClient.FileChooserParams.parseResult(resultCode, data));
+                    }
+                    filePathCallbackLollipop = null;
+                    break;
+                }
+                case REQUEST_PERMISSION_SETTING: {
+                    mLastDownloadId = FileUtils.downloadFile(this, mDownloadUrl, mDownloadMimetype);
+                    break;
+                }
             }
-            case REQUEST_FILE_CHOOSER_FOR_LOLLIPOP: {
-                if (filePathCallbackLollipop == null) {
-                    return;
+        } else {
+            switch (requestCode) {
+                case REQUEST_PERMISSION_SETTING: {
+                    Toast.makeText(this, R.string.write_permission_denied_message, Toast.LENGTH_LONG).show();
+                    break;
                 }
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                    filePathCallbackLollipop.onReceiveValue(WebChromeClient.FileChooserParams.parseResult(resultCode, data));
-                }
-                filePathCallbackLollipop = null;
-                break;
             }
         }
     }
@@ -361,6 +380,38 @@ public class WebViewerActivity extends AppCompatActivity implements WebViewPrese
     }
 
     @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        if (PermissionUtils.REQUEST_PERMISSION_WRITE_EXTERNAL_STORAGE == requestCode) {
+            if (grantResults.length > 0
+                    && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                mLastDownloadId = FileUtils.downloadFile(this, mDownloadUrl, mDownloadMimetype);
+            } else {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                    if (!shouldShowRequestPermissionRationale(permissions[0])) {
+                        new AlertDialog.Builder(WebViewerActivity.this)
+                                .setTitle(R.string.write_permission_denied_title)
+                                .setMessage(R.string.write_permission_denied_message)
+                                .setNegativeButton(R.string.dialog_dismiss, null)
+                                .setPositiveButton(R.string.dialog_settings, new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialog, int which) {
+                                        Intent intent = new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
+                                        Uri uri = Uri.fromParts("package", getPackageName(), null);
+                                        intent.setData(uri);
+                                        startActivityForResult(intent, REQUEST_PERMISSION_SETTING);
+                                    }
+                                })
+                                .show();
+                    }
+                }
+            }
+        }
+    }
+
+    private String mDownloadUrl;
+    private String mDownloadMimetype;
+
+    @Override
     public void onDownloadStart(String url, String userAgent, String contentDisposition,
                                 String mimeType, long contentLength) {
         if (mDownloadManager == null) {
@@ -371,7 +422,17 @@ public class WebViewerActivity extends AppCompatActivity implements WebViewPrese
         Log.d(TAG, "onDownloadStart contentDisposition: " + contentDisposition);
         Log.d(TAG, "onDownloadStart mimeType: " + mimeType);
 
-        mLastDownloadId = FileUtils.downloadFile(this, url, mimeType);
+        mDownloadUrl = url;
+        mDownloadMimetype = mimeType;
+
+        boolean hasPermission = PermissionUtils.hasPermission(
+                WebViewerActivity.this,
+                Manifest.permission.WRITE_EXTERNAL_STORAGE,
+                PermissionUtils.REQUEST_PERMISSION_WRITE_EXTERNAL_STORAGE);
+
+        if (hasPermission) {
+            mLastDownloadId = FileUtils.downloadFile(this, url, mimeType);
+        }
     }
 
     @Override
