@@ -30,8 +30,8 @@ android {
         applicationId "com.tfc.webviewer.sample"
         minSdkVersion 9
         targetSdkVersion 23
-        versionCode 1
-        versionName "0.70.2"
+        versionCode 2
+        versionName "0.70.3"
         signingConfig signingConfigs.config
     }
     buildTypes {
