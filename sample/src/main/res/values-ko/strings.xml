@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="hint_url">URL을 입력하세요</string>
+    <string name="load">열기</string>
+</resources>
