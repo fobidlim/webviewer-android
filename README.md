@@ -4,17 +4,17 @@ You can download WebViewer Sample application on Google Play.
 [![Get it on Google Play](http://www.android.com/images/brand/get_it_on_play_logo_small.png)](https://play.google.com/store/apps/details?id=com.tfc.webviewer.sample)
 
 # Download
-Download [the latest JAR](https://repo1.maven.org/maven2/com/github/fobid/webviewer/0.70.0/webviewer-0.70.0.aar) or grab via Maven:
+Download [the latest JAR](https://repo1.maven.org/maven2/com/github/fobid/webviewer/0.70.0/webviewer-0.70.3.aar) or grab via Maven:
 ```
 <dependency>
   <groupId>com.github.fobid</groupId>
   <artifactId>webviewer</artifactId>
-  <version>0.70.0</version>
+  <version>0.70.3</version>
 </dependency>
 ```
 or Gradle:
 ```
-compile 'com.github.fobid:webviewer:0.70.0'
+compile 'com.github.fobid:webviewer:0.70.3'
 ```
 
 # Usage
