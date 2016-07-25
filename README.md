@@ -1,4 +1,7 @@
 # WebViewer Library
+
+[![Github Release][release-image]][release-url]
+
 You can download WebViewer Sample application on Google Play.
 
 [![Get it on Google Play](http://www.android.com/images/brand/get_it_on_play_logo_small.png)](https://play.google.com/store/apps/details?id=com.tfc.webviewer.sample)
@@ -51,3 +54,7 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 ```
+
+
+[release-image]: https://img.shields.io/badge/release-v0.70.3-lightgrey.svg
+[release-url]: https://github.com/fobid/webviewer/releases/tag/v0.70.3
