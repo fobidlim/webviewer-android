@@ -1,6 +1,6 @@
 # WebViewer Library
 
-[![Join the chat at https://gitter.im/webviewer-android/Lobby](https://badges.gitter.im/webviewer-android/Lobby.svg)](https://gitter.im/webviewer-android/Lobby?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+[![Join the chat at https://gitter.im/webviewer-android/Lobby](https://badges.gitter.im/webviewer-android/Lobby.svg)](https://gitter.im/fobid/webviewer?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
 [![Github Release][release-image]][release-url]
 
