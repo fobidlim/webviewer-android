@@ -454,6 +454,7 @@ public class WebViewerActivity extends AppCompatActivity implements WebViewPrese
         }
 
         // For Android 3.0+
+        @SuppressWarnings("WeakerAccess")
         public void openFileChooser(ValueCallback<Uri> uploadMsg,
                                     @SuppressWarnings("UnusedParameters") String acceptType) {
             filePathCallbackNormal = uploadMsg;
@@ -623,6 +624,7 @@ public class WebViewerActivity extends AppCompatActivity implements WebViewPrese
                 final String fileName = results[1];
                 final String mimeType = results[2];
 
+                //noinspection WrongConstant
                 Snackbar.make(mCoordinatorLayout, fileName + getString(R.string.downloaded_message),
                         Snackbar.LENGTH_LONG)
                         .setDuration(getResources().getInteger(R.integer.snackbar_duration))
@@ -631,7 +633,7 @@ public class WebViewerActivity extends AppCompatActivity implements WebViewPrese
                             public void onClick(View v) {
                                 Intent viewIntent = new Intent(Intent.ACTION_VIEW);
                                 viewIntent.setDataAndType(Uri.parse(uriStr), mimeType);
-                                startActivity(viewIntent);
+                                mPresenter.startActivity(viewIntent);
                             }
                         })
                         .show();
