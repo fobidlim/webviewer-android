@@ -4,17 +4,17 @@
 [![구글플레이로 연결](http://www.android.com/images/brand/get_it_on_play_logo_small.png)](https://play.google.com/store/apps/details?id=com.tfc.webviewer.sample)
 
 # 받아보기
-[최신버전의 JAR](https://repo1.maven.org/maven2/com/github/fobid/webviewer/0.70.3/webviewer-0.70.3.aar) or grab via Maven:
+[최신버전의 JAR](https://repo1.maven.org/maven2/com/github/fobid/webviewer/0.70.4/webviewer-0.70.4.aar) or grab via Maven:
 ```
 <dependency>
   <groupId>com.github.fobid</groupId>
   <artifactId>webviewer</artifactId>
-  <version>0.70.3</version>
+  <version>0.70.4</version>
 </dependency>
 ```
 or Gradle:
 ```
-compile 'com.github.fobid:webviewer:0.70.3'
+compile 'com.github.fobid:webviewer:0.70.4'
 ```
 
 # Usage

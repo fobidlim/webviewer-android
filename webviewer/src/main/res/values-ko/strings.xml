@@ -34,4 +34,5 @@
     <string name="write_permission_denied_message">저장 권한이 거부되었습니다.\n[설정] > [권한]에서 권한을 활성화 해주세요.</string>
     <string name="dialog_dismiss">닫기</string>
     <string name="dialog_settings">설정</string>
+    <string name="message_activity_not_found">파일을 실행 할 앱을 찾을 수 없습니다.</string>
 </resources>

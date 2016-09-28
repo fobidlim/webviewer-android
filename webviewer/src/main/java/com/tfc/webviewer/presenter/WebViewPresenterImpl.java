@@ -15,14 +15,11 @@
  */
 package com.tfc.webviewer.presenter;
 
-import android.annotation.SuppressLint;
-import android.app.DownloadManager;
+import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
-import android.os.Build;
-import android.os.Environment;
 import android.os.Vibrator;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AlertDialog;
@@ -31,14 +28,11 @@ import android.util.Log;
 import android.webkit.URLUtil;
 import android.webkit.WebView;
 import android.widget.PopupWindow;
-import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import com.tfc.webviewer.R;
-import com.tfc.webviewer.ui.WebViewerActivity;
 import com.tfc.webviewer.util.UrlUtils;
 
-import java.io.File;
 import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.net.URLEncoder;
@@ -298,6 +292,14 @@ public class WebViewPresenterImpl implements IWebViewPresenter {
             progress = 0;
         }
         mView.setProgressBar(progress);
+    }
+
+    public void startActivity(Intent intent) {
+        try {
+            mContext.startActivity(intent);
+        } catch (ActivityNotFoundException e) {
+            mView.showToast(makeToast(mContext.getString(R.string.message_activity_not_found)));
+        }
     }
 
     public interface View {
