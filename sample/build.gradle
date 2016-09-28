@@ -4,6 +4,7 @@ buildscript {
     }
 
     dependencies {
+        //noinspection GradleDynamicVersion
         classpath 'io.fabric.tools:gradle:1.+'
     }
 }
@@ -19,9 +20,9 @@ android {
     signingConfigs {
         config {
             keyAlias 'webviewer'
-            keyPassword '1234567890'
+            keyPassword KEY_PASSWORD
             storeFile file('/Users/Fobid/Keystore/webviewer.jks')
-            storePassword '1234567890'
+            storePassword KEYSTORE_PASSWORD
         }
     }
     compileSdkVersion 23
@@ -30,8 +31,8 @@ android {
         applicationId "com.tfc.webviewer.sample"
         minSdkVersion 9
         targetSdkVersion 23
-        versionCode 2
-        versionName "0.70.3"
+        versionCode 3
+        versionName "0.70.4"
         signingConfig signingConfigs.config
     }
     buildTypes {
