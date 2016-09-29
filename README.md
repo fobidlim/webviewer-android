@@ -59,4 +59,4 @@ limitations under the License.
 
 
 [release-image]: https://img.shields.io/badge/release-v0.70.4-lightgrey.svg
-[release-url]: https://github.com/fobid/webviewer/releases/tag/v0.70.4
+[release-url]: https://github.com/fobid/webviewer/releases/tag/0.70.4
