@@ -58,6 +58,9 @@ See the License for the specific language governing permissions and
 limitations under the License.
 ```
 
+# Translation
+[Korean](https://github.com/fobid/webviewer/blob/master/README.ko.md)
+
 
 [release-image]: https://img.shields.io/badge/release-v0.70.4-lightgrey.svg
 [release-url]: https://github.com/fobid/webviewer/releases/tag/0.70.4
