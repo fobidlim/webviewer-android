@@ -1,4 +1,11 @@
 # WebViewer 라이브러리
+
+[![Android Arsenal](https://img.shields.io/badge/Android%20Arsenal-webviewer-green.svg?style=true)](https://android-arsenal.com/details/1/4626)
+
+[![Join the chat at https://gitter.im/webviewer-android/Lobby](https://badges.gitter.im/webviewer-android/Lobby.svg)](https://gitter.im/fobid/webviewer?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+
+[![Github Release][release-image]][release-url]
+
 시작하기전에 구글플레이에서 WebViewer 예제 애플리케이션을 다운받을 수 있습니다.
 
 [![구글플레이로 연결](http://www.android.com/images/brand/get_it_on_play_logo_small.png)](https://play.google.com/store/apps/details?id=com.tfc.webviewer.sample)
@@ -51,3 +58,7 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 ```
+
+
+[release-image]: https://img.shields.io/badge/release-v0.70.4-lightgrey.svg
+[release-url]: https://github.com/fobid/webviewer/releases/tag/0.70.4
