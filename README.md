@@ -1,6 +1,11 @@
 # WebViewer Library
+[![Android Arsenal](https://img.shields.io/badge/Android%20Arsenal-webviewer-green.svg?style=true)](https://android-arsenal.com/details/1/4626)
 
 [![Join the chat at https://gitter.im/webviewer-android/Lobby](https://badges.gitter.im/webviewer-android/Lobby.svg)](https://gitter.im/fobid/webviewer?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+
+[![Join the chat at https://gitter.im/fobid/webviewer](https://badges.gitter.im/fobid/webviewer.svg)](https://gitter.im/fobid/webviewer?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+
+[![Join the chat at https://gitter.im/webviewer-android/Lobby](https://badges.gitter.im/webviewer-android/Lobby.svg)](https://gitter.im/webviewer-android/Lobby?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
 [![Github Release][release-image]][release-url]
 
@@ -57,6 +62,9 @@ See the License for the specific language governing permissions and
 limitations under the License.
 ```
 
+# Translation
+[Korean](https://github.com/fobid/webviewer/blob/master/README.ko.md)
+
 
 [release-image]: https://img.shields.io/badge/release-v0.70.4-lightgrey.svg
-[release-url]: https://github.com/fobid/webviewer/releases/tag/v0.70.4
+[release-url]: https://github.com/fobid/webviewer/releases/tag/0.70.4
