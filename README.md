@@ -1,7 +1,7 @@
 # WebViewer Library
 [![Android Arsenal](https://img.shields.io/badge/Android%20Arsenal-webviewer-green.svg?style=true)](https://android-arsenal.com/details/1/4626)
 
-[![Join the chat at https://gitter.im/webviewer-android/Lobby](https://badges.gitter.im/webviewer-android/Lobby.svg)](https://gitter.im/fobid/webviewer?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+[![Join the chat at https://gitter.im/fobid/webviewer/Lobby](https://badges.gitter.im/fobid/webviewer/Lobby.svg)](https://gitter.im/fobid/webviewer?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
 [![Github Release][release-image]][release-url]
 
