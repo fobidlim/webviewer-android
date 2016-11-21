@@ -26,6 +26,7 @@ import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.database.Cursor;
+import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
@@ -38,7 +39,6 @@ import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.AppCompatImageButton;
-import android.util.Log;
 import android.view.ContextMenu;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -242,6 +242,7 @@ public class WebViewerActivity extends AppCompatActivity implements WebViewPrese
 
         mPopupMenu.setContentView(view);
         mPopupMenu.setOutsideTouchable(true);
+        mPopupMenu.setBackgroundDrawable(new ColorDrawable(0));
         mPopupMenu.setFocusable(true);
 
         mLlControlButtons = (RelativeLayout) view.findViewById(R.id.popup_menu_rl_arrows);
@@ -417,10 +418,6 @@ public class WebViewerActivity extends AppCompatActivity implements WebViewPrese
         if (mDownloadManager == null) {
             mDownloadManager = (DownloadManager) getSystemService(DOWNLOAD_SERVICE);
         }
-        Log.d(TAG, "onDownloadStart url: " + url);
-        Log.d(TAG, "onDownloadStart userAgent: " + userAgent);
-        Log.d(TAG, "onDownloadStart contentDisposition: " + contentDisposition);
-        Log.d(TAG, "onDownloadStart mimeType: " + mimeType);
 
         mDownloadUrl = url;
         mDownloadMimetype = mimeType;
