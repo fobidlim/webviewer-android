@@ -3,6 +3,7 @@
     <dimen name="progressBarHeight">1dp</dimen>
     <dimen name="dividerWidth">1dp</dimen>
     <dimen name="dividerHeight">1dp</dimen>
+    <dimen name="cardRadius">2dp</dimen>
 
     <dimen name="menuWidth">224dp</dimen>
     <dimen name="menuPaddingVertical">8dp</dimen>
