@@ -1,3 +1,7 @@
+## 0.70.5
+- Added shadow to popup menu.
+- Support to choose another email app on email clicked.
+
 ## 0.70.4
 - Updated `README.md`.
 

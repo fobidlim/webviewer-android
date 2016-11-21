@@ -25,14 +25,14 @@ android {
             storePassword KEYSTORE_PASSWORD
         }
     }
-    compileSdkVersion 23
-    buildToolsVersion "23.0.3"
+    compileSdkVersion 24
+    buildToolsVersion "25.0.0"
     defaultConfig {
         applicationId "com.tfc.webviewer.sample"
         minSdkVersion 9
-        targetSdkVersion 23
-        versionCode 3
-        versionName "0.70.4"
+        targetSdkVersion 24
+        versionCode 4
+        versionName "0.70.5"
         signingConfig signingConfigs.config
     }
     buildTypes {
@@ -55,9 +55,9 @@ android {
 dependencies {
     compile fileTree(include: ['*.jar'], dir: 'libs')
     testCompile 'junit:junit:4.12'
-    compile 'com.android.support:appcompat-v7:23.3.0'
+    compile "com.android.support:appcompat-v7:${supportLibVersion}"
     compile project(':webviewer')
-    compile('com.crashlytics.sdk.android:crashlytics:2.5.5@aar') {
+    compile('com.crashlytics.sdk.android:crashlytics:2.6.5@aar') {
         transitive = true;
     }
 }
