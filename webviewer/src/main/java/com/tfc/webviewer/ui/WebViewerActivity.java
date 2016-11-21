@@ -550,7 +550,7 @@ public class WebViewerActivity extends AppCompatActivity implements WebViewPrese
 
                 return true;
             } else if (url.startsWith("tel:") || url.startsWith("sms:") || url.startsWith("smsto:")
-                    || url.startsWith("mms:") || url.startsWith("mmsto:")) {
+                    || url.startsWith("mms:") || url.startsWith("mmsto:") || url.startsWith("mailto:")) {
                 Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
                 intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                 view.getContext().startActivity(intent);
