@@ -10,17 +10,17 @@ You can download WebViewer Sample application on Google Play.
 [![Get it on Google Play](http://www.android.com/images/brand/get_it_on_play_logo_small.png)](https://play.google.com/store/apps/details?id=com.tfc.webviewer.sample)
 
 # Download
-Download [the latest JAR](https://repo1.maven.org/maven2/com/github/fobid/webviewer/0.70.4/webviewer-0.70.4.aar) or grab via Maven:
+Download [the latest JAR](https://repo1.maven.org/maven2/com/github/fobid/webviewer/0.70.5/webviewer-0.70.5.aar) or grab via Maven:
 ```
 <dependency>
   <groupId>com.github.fobid</groupId>
   <artifactId>webviewer</artifactId>
-  <version>0.70.4</version>
+  <version>0.70.5</version>
 </dependency>
 ```
 or Gradle:
 ```
-compile 'com.github.fobid:webviewer:0.70.4'
+compile 'com.github.fobid:webviewer:0.70.5'
 ```
 
 # Usage
@@ -62,5 +62,5 @@ limitations under the License.
 [Korean](https://github.com/fobid/webviewer/blob/master/README.ko.md)
 
 
-[release-image]: https://img.shields.io/badge/release-v0.70.4-lightgrey.svg
-[release-url]: https://github.com/fobid/webviewer/releases/tag/0.70.4
+[release-image]: https://img.shields.io/badge/release-v0.70.5-lightgrey.svg
+[release-url]: https://github.com/fobid/webviewer/releases/tag/0.70.5
