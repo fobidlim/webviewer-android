@@ -19,7 +19,6 @@ import android.content.ActivityNotFoundException
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
-import android.os.Vibrator
 import android.support.v4.widget.SwipeRefreshLayout
 import android.support.v7.app.AlertDialog
 import android.text.TextUtils
@@ -31,6 +30,7 @@ import android.widget.PopupWindow
 import android.widget.Toast
 import com.tfc.webviewer.R
 import com.tfc.webviewer.util.UrlUtils
+import com.tfc.webviewer.vibrate
 import java.io.UnsupportedEncodingException
 import java.net.MalformedURLException
 import java.net.URLEncoder
@@ -102,27 +102,27 @@ class WebViewPresenterImpl(
 
     override fun onClick(resId: Int, url: String, popupWindow: PopupWindow) {
         view.closeMenu()
-        if (R.id.toolbar_btn_close == resId) {
-            view.close()
-        } else if (R.id.toolbar_btn_more == resId) {
-            if (popupWindow.isShowing) {
-                view.closeMenu()
-            } else {
-                view.openMenu()
+
+        when (resId) {
+            R.id.toolbar_btn_close -> view.close()
+            R.id.toolbar_btn_more -> {
+                if (popupWindow.isShowing) {
+                    view.closeMenu()
+                } else {
+                    view.openMenu()
+                }
             }
-        } else if (R.id.popup_menu_btn_back == resId) {
-            view.goBack()
-        } else if (R.id.popup_menu_btn_forward == resId) {
-            view.goForward()
-        } else if (R.id.popup_menu_btn_refresh == resId) {
-            view.onRefresh()
-        } else if (R.id.popup_menu_btn_copy_link == resId) {
-            view.copyLink(url)
-            view.showToast(makeToast(context.getString(R.string.message_copy_to_clipboard)))
-        } else if (R.id.popup_menu_btn_open_with_other_browser == resId) {
-            view.openBrowser(Uri.parse(url))
-        } else if (R.id.popup_menu_btn_share == resId) {
-            view.openShare(url)
+            R.id.popup_menu_btn_back -> view.goBack()
+            R.id.popup_menu_btn_forward -> view.goForward()
+            R.id.popup_menu_btn_refresh -> view.onRefresh()
+            R.id.popup_menu_btn_copy_link -> view.run {
+                copyLink(url)
+                showToast(makeToast(context.getString(R.string.message_copy_to_clipboard)))
+            }
+            R.id.popup_menu_btn_open_with_other_browser -> view.openBrowser(Uri.parse(url))
+            R.id.popup_menu_btn_share -> view.openShare(url)
+            else -> {
+            }
         }
     }
 
@@ -145,10 +145,11 @@ class WebViewPresenterImpl(
     }
 
     override fun onLongClick(result: HitTestResult) {
-        val vibrator = context.getSystemService(Context.VIBRATOR_SERVICE) as Vibrator
-        vibrator.vibrate(context.resources.getInteger(R.integer.vibrator_duration).toLong())
+        context.vibrate()
+
         val type = result.type
-        val extra = result.extra
+        val extra = result.extra ?: return
+
         when (type) {
             HitTestResult.EMAIL_TYPE -> {
                 val items = arrayOf<CharSequence>(
@@ -156,9 +157,9 @@ class WebViewPresenterImpl(
                     context.getString(R.string.copy_email),
                     context.getString(R.string.copy_link_text)
                 )
-                val dialog = AlertDialog.Builder(context)
+                AlertDialog.Builder(context)
                     .setTitle(extra)
-                    .setItems(items) { dialog, which ->
+                    .setItems(items) { _, which ->
                         if (which == 0) {
                             view.openEmail(extra)
                         } else if (which == 1 || which == 2) {
@@ -166,8 +167,7 @@ class WebViewPresenterImpl(
                             view.showToast(makeToast(context.getString(R.string.message_copy_to_clipboard)))
                         }
                     }
-                    .create()
-                dialog.show()
+                    .show()
             }
             HitTestResult.GEO_TYPE -> {
                 Log.d(TAG, "geo longclicked")
@@ -179,22 +179,23 @@ class WebViewPresenterImpl(
                     context.getString(R.string.save_image),
                     context.getString(R.string.open_image)
                 )
-                val dialog = AlertDialog.Builder(context)
+                AlertDialog.Builder(context)
                     .setTitle(extra)
-                    .setItems(items) { dialog, which ->
-                        if (which == 0) {
-                            view.copyLink(extra)
-                            view.showToast(makeToast(context.getString(R.string.message_copy_to_clipboard)))
-                        } else if (which == 1) {
-                            view.onDownloadStart(extra)
-                        } else if (which == 2) {
-                            view.onDownloadStart(extra)
-                        } else if (which == 3) {
-                            view.openPopup(extra)
+                    .setItems(items) { _, which ->
+                        when (which) {
+                            0 ->
+                                view.run {
+                                    copyLink(extra)
+                                    showToast(makeToast(context.getString(R.string.message_copy_to_clipboard)))
+                                }
+                            1 -> view.onDownloadStart(extra)
+                            2 -> view.onDownloadStart(extra)
+                            3 -> view.openPopup(extra)
+                            else -> {
+                            }
                         }
                     }
-                    .create()
-                dialog.show()
+                    .show()
             }
             HitTestResult.PHONE_TYPE, HitTestResult.SRC_ANCHOR_TYPE -> {
                 val items = arrayOf<CharSequence>(
@@ -202,21 +203,24 @@ class WebViewPresenterImpl(
                     context.getString(R.string.copy_link_text),
                     context.getString(R.string.save_link)
                 )
-                val dialog = AlertDialog.Builder(context)
+                AlertDialog.Builder(context)
                     .setTitle(extra)
-                    .setItems(items) { dialog, which ->
-                        if (which == 0) {
-                            view.copyLink(extra)
-                            view.showToast(makeToast(context.getString(R.string.message_copy_to_clipboard)))
-                        } else if (which == 1) {
-                            view.copyLink(extra)
-                            view.showToast(makeToast(context.getString(R.string.message_copy_to_clipboard)))
-                        } else if (which == 2) {
-                            view.onDownloadStart(extra)
+                    .setItems(items) { _, which ->
+                        when (which) {
+                            0 -> view.run {
+                                copyLink(extra)
+                                showToast(makeToast(context.getString(R.string.message_copy_to_clipboard)))
+                            }
+                            1 -> view.run {
+                                copyLink(extra)
+                                showToast(makeToast(context.getString(R.string.message_copy_to_clipboard)))
+                            }
+                            2 -> view.onDownloadStart(extra)
+                            else -> {
+                            }
                         }
                     }
-                    .create()
-                dialog.show()
+                    .show()
             }
         }
     }

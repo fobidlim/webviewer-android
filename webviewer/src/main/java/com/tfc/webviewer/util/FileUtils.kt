@@ -41,13 +41,13 @@ object FileUtils {
             val dm = context.getSystemService(Context.DOWNLOAD_SERVICE) as DownloadManager
             val uri = Uri.parse(url)
             val request = DownloadManager.Request(uri)
-            request.setTitle(fileNameWithExtension)
-            request.setMimeType(mimeType)
-            request.setDescription(host)
-            request.setDestinationInExternalPublicDir(
-                Environment.DIRECTORY_DOWNLOADS,
-                fileNameWithExtension
-            )
+                .setTitle(fileNameWithExtension)
+                .setMimeType(mimeType)
+                .setDescription(host)
+                .setDestinationInExternalPublicDir(
+                    Environment.DIRECTORY_DOWNLOADS,
+                    fileNameWithExtension
+                )
             val downloadsDir =
                 Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
             if (!downloadsDir.exists()) {
@@ -56,6 +56,7 @@ object FileUtils {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
                 request.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED)
             } else {
+                @Suppress("DEPRECATION")
                 request.setShowRunningNotification(true)
             }
             request.setVisibleInDownloadsUi(true)

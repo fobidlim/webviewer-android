@@ -20,7 +20,6 @@ import android.annotation.SuppressLint
 import android.app.DownloadManager
 import android.content.*
 import android.content.pm.PackageManager
-import android.content.res.Configuration
 import android.databinding.DataBindingUtil
 import android.graphics.drawable.ColorDrawable
 import android.net.Uri
@@ -32,7 +31,6 @@ import android.support.design.widget.Snackbar
 import android.support.v4.widget.SwipeRefreshLayout.OnRefreshListener
 import android.support.v7.app.AlertDialog
 import android.support.v7.app.AppCompatActivity
-import android.support.v7.widget.AppCompatImageButton
 import android.view.ContextMenu
 import android.view.ContextMenu.ContextMenuInfo
 import android.view.LayoutInflater
@@ -44,6 +42,7 @@ import android.webkit.WebChromeClient.FileChooserParams
 import android.widget.*
 import com.tfc.webviewer.R
 import com.tfc.webviewer.databinding.AWebViewerBinding
+import com.tfc.webviewer.databinding.PopupMenuBinding
 import com.tfc.webviewer.presenter.WebViewPresenterImpl
 import com.tfc.webviewer.util.ClipboardUtils
 import com.tfc.webviewer.util.FileUtils
@@ -59,24 +58,25 @@ class WebViewerActivity : AppCompatActivity(),
     DownloadListener,
     OnCreateContextMenuListener {
 
+    private val presenter by lazy { WebViewPresenterImpl(this, this) }
+
+    private val popupMenu: PopupWindow by lazy {
+        PopupWindow(this)
+    }
+
     private val binding by lazy {
         DataBindingUtil.setContentView<AWebViewerBinding>(this, R.layout.a_web_viewer)
     }
 
-    private var mUrl = ""
-    private var filePathCallbackLollipop: ValueCallback<Array<Uri>>? = null
-    private var filePathCallbackNormal: ValueCallback<Uri?>? = null
-    private var mPresenter: WebViewPresenterImpl? = null
-    private var mDownloadManager: DownloadManager? = null
-    private var mLastDownloadId: Long = 0
-
-    // PopupWindow
-    private val mPopupMenu: PopupWindow by lazy {
-        PopupWindow(this)
+    private val popupMenuBinding by lazy {
+        PopupMenuBinding.inflate(LayoutInflater.from(this))
     }
-    private var mLlControlButtons: RelativeLayout? = null
-    private var mBtnBack: AppCompatImageButton? = null
-    private var mBtnFoward: AppCompatImageButton? = null
+
+    private var url = ""
+    private var filePathCallbackLollipop: ValueCallback<Array<Uri>>? = null
+    private var filePathCallbackNormal: ValueCallback<Uri>? = null
+    private var downloadManager: DownloadManager? = null
+    private var mLastDownloadId: Long = 0
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -85,51 +85,47 @@ class WebViewerActivity : AppCompatActivity(),
             WindowManager.LayoutParams.FLAG_FULLSCREEN,
             WindowManager.LayoutParams.FLAG_FULLSCREEN
         )
-        supportActionBar!!.hide()
-        val filter = IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE)
-        filter.addAction(DownloadManager.ACTION_NOTIFICATION_CLICKED)
-        registerReceiver(mDownloadReceiver, filter)
-        mUrl = intent.getStringExtra(EXTRA_URL) ?: ""
+        supportActionBar?.hide()
+        IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE)
+            .apply {
+                addAction(DownloadManager.ACTION_NOTIFICATION_CLICKED)
+            }.let {
+                registerReceiver(downloadReceiver, it)
+            }
+        url = intent.getStringExtra(EXTRA_URL) ?: ""
         bindView()
-        mPresenter = WebViewPresenterImpl(this, this)
-        mPresenter!!.validateUrl(mUrl)
+        presenter.validateUrl(url)
     }
 
     override fun onDestroy() {
         super.onDestroy()
-        unregisterReceiver(mDownloadReceiver)
-    }
-
-    override fun onConfigurationChanged(newConfig: Configuration) {
-        super.onConfigurationChanged(newConfig)
+        unregisterReceiver(downloadReceiver)
     }
 
     override fun onCreateContextMenu(menu: ContextMenu, v: View, menuInfo: ContextMenuInfo) {
         super.onCreateContextMenu(menu, v, menuInfo)
-        val result = binding.aWebViewerWv!!.hitTestResult
-        mPresenter!!.onLongClick(result)
+        val result = binding.aWebViewerWv.hitTestResult
+        presenter.onLongClick(result)
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
-        if (mUrl != null) {
-            outState.putString(EXTRA_URL, mUrl)
-        }
+        outState.putString(EXTRA_URL, url)
         super.onSaveInstanceState(outState)
     }
 
     override fun onRestoreInstanceState(savedInstanceState: Bundle) {
-        mUrl = savedInstanceState.getString(EXTRA_URL)
+        url = savedInstanceState.getString(EXTRA_URL) ?: ""
         super.onRestoreInstanceState(savedInstanceState)
     }
 
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent) {
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         if (RESULT_OK == resultCode) {
             when (requestCode) {
                 REQUEST_FILE_CHOOSER -> {
                     if (filePathCallbackNormal == null) {
                         return
                     }
-                    val result = if (data == null) null else data.data
+                    val result = data?.data
                     filePathCallbackNormal!!.onReceiveValue(result)
                     filePathCallbackNormal = null
                 }
@@ -148,9 +144,9 @@ class WebViewerActivity : AppCompatActivity(),
                     filePathCallbackLollipop = null
                 }
                 REQUEST_PERMISSION_SETTING -> {
-                    if (mDownloadUrl != null && mDownloadMimetype != null) {
+                    if (downloadUrl != null && downloadMimetype != null) {
                         mLastDownloadId =
-                            FileUtils.downloadFile(this, mDownloadUrl!!, mDownloadMimetype!!)
+                            FileUtils.downloadFile(this, downloadUrl!!, downloadMimetype!!)
                     }
                 }
             }
@@ -170,23 +166,23 @@ class WebViewerActivity : AppCompatActivity(),
     @SuppressLint("SetJavaScriptEnabled")
     private fun bindView() {
         // Toolbar
-        binding.apply {
+        with(binding) {
             aWebViewerSrl.setOnRefreshListener(this@WebViewerActivity)
 
             aWebViewerWv.apply {
-                settings.let { webSettings ->
-                    webSettings.javaScriptEnabled = true
-                    webSettings.javaScriptCanOpenWindowsAutomatically = true
+                settings.apply {
+                    javaScriptEnabled = true
+                    javaScriptCanOpenWindowsAutomatically = true
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-                        webSettings.displayZoomControls = false
+                        displayZoomControls = false
                     }
-                    webSettings.builtInZoomControls = true
-                    webSettings.setSupportZoom(true)
-                    webSettings.domStorageEnabled = true
+                    builtInZoomControls = true
+                    setSupportZoom(true)
+                    domStorageEnabled = true
                 }
 
-                setWebChromeClient(MyWebChromeClient())
-                setWebViewClient(MyWebViewClient())
+                webChromeClient = MyWebChromeClient()
+                webViewClient = MyWebViewClient()
                 setDownloadListener(this@WebViewerActivity)
                 setOnCreateContextMenuListener(this@WebViewerActivity)
             }
@@ -202,26 +198,26 @@ class WebViewerActivity : AppCompatActivity(),
     }
 
     private fun initPopupMenu() {
-        @SuppressLint("InflateParams") val view =
-            LayoutInflater.from(this).inflate(R.layout.popup_menu, null)
-        mPopupMenu!!.contentView = view
-        mPopupMenu!!.isOutsideTouchable = true
-        mPopupMenu!!.setBackgroundDrawable(ColorDrawable(0))
-        mPopupMenu!!.isFocusable = true
-        mLlControlButtons = view.findViewById(R.id.popup_menu_rl_arrows) as RelativeLayout
-        mBtnBack = view.findViewById(R.id.popup_menu_btn_back) as AppCompatImageButton
-        mBtnFoward = view.findViewById(R.id.popup_menu_btn_forward) as AppCompatImageButton
-        mBtnBack!!.setOnClickListener(this)
-        mBtnFoward!!.setOnClickListener(this)
-        view.findViewById(R.id.popup_menu_btn_refresh).setOnClickListener(this)
-        view.findViewById(R.id.popup_menu_btn_copy_link).setOnClickListener(this)
-        view.findViewById(R.id.popup_menu_btn_open_with_other_browser).setOnClickListener(this)
-        view.findViewById(R.id.popup_menu_btn_share).setOnClickListener(this)
+        popupMenu.apply {
+            contentView = popupMenuBinding.root
+            isOutsideTouchable = true
+            setBackgroundDrawable(ColorDrawable(0))
+            isFocusable = true
+        }
+
+        with(popupMenuBinding) {
+            popupMenuBtnBack.setOnClickListener(this@WebViewerActivity)
+            popupMenuBtnForward.setOnClickListener(this@WebViewerActivity)
+            popupMenuBtnRefresh.setOnClickListener(this@WebViewerActivity)
+            popupMenuBtnCopyLink.setOnClickListener(this@WebViewerActivity)
+            popupMenuBtnOpenWithOtherBrowser.setOnClickListener(this@WebViewerActivity)
+            popupMenuBtnShare.setOnClickListener(this@WebViewerActivity)
+        }
     }
 
     override fun loadUrl(url: String) {
-        binding.aWebViewerWv!!.loadUrl(url)
-        mPresenter!!.onReceivedTitle("", mUrl)
+        binding.aWebViewerWv.loadUrl(url)
+        presenter.onReceivedTitle("", this.url)
     }
 
     override fun close() {
@@ -229,35 +225,35 @@ class WebViewerActivity : AppCompatActivity(),
     }
 
     override fun closeMenu() {
-        mPopupMenu.dismiss()
+        popupMenu.dismiss()
     }
 
     override fun openMenu() {
-        mPopupMenu.showAsDropDown(binding.toolbarContainer.toolbarBtnMore)
+        popupMenu.showAsDropDown(binding.toolbarContainer.toolbarBtnMore)
     }
 
     override fun setEnabledGoBackAndGoForward() {
-        mLlControlButtons!!.visibility = View.VISIBLE
+        popupMenuBinding.popupMenuRlArrows.visibility = View.VISIBLE
     }
 
     override fun setDisabledGoBackAndGoForward() {
-        mLlControlButtons!!.visibility = View.GONE
+        popupMenuBinding.popupMenuRlArrows.visibility = View.GONE
     }
 
     override fun setEnabledGoBack() {
-        mBtnBack!!.isEnabled = true
+        popupMenuBinding.popupMenuBtnBack.isEnabled = true
     }
 
     override fun setDisabledGoBack() {
-        mBtnBack!!.isEnabled = false
+        popupMenuBinding.popupMenuBtnBack.isEnabled = false
     }
 
     override fun setEnabledGoForward() {
-        mBtnFoward!!.isEnabled = true
+        popupMenuBinding.popupMenuBtnForward.isEnabled = true
     }
 
     override fun setDisabledGoForward() {
-        mBtnFoward!!.isEnabled = false
+        popupMenuBinding.popupMenuBtnForward.isEnabled = false
     }
 
     override fun goBack() {
@@ -281,10 +277,12 @@ class WebViewerActivity : AppCompatActivity(),
     }
 
     override fun openShare(url: String) {
-        val intent = Intent(Intent.ACTION_SEND)
-        intent.putExtra(Intent.EXTRA_TEXT, binding.aWebViewerWv!!.url)
-        intent.type = "text/plain"
-        startActivity(Intent.createChooser(intent, resources.getString(R.string.menu_share)))
+        Intent(Intent.ACTION_SEND)
+            .putExtra(Intent.EXTRA_TEXT, binding.aWebViewerWv.url)
+            .setType("text/plain")
+            .let {
+                startActivity(Intent.createChooser(it, resources.getString(R.string.menu_share)))
+            }
     }
 
     override fun setToolbarTitle(title: String) {
@@ -300,22 +298,26 @@ class WebViewerActivity : AppCompatActivity(),
     }
 
     override fun setProgressBar(progress: Int) {
-        binding.aWebViewerPb!!.progress = progress
+        binding.aWebViewerPb.progress = progress
     }
 
     override fun setRefreshing(refreshing: Boolean) {
-        binding.aWebViewerSrl!!.isRefreshing = refreshing
+        binding.aWebViewerSrl.isRefreshing = refreshing
     }
 
     override fun openEmail(email: String) {
-        val intent = Intent(Intent.ACTION_SENDTO, Uri.fromParts("mailto", email, null))
-        startActivity(Intent.createChooser(intent, getString(R.string.email)))
+        Intent(Intent.ACTION_SENDTO, Uri.fromParts("mailto", email, null))
+            .let {
+                startActivity(Intent.createChooser(it, getString(R.string.email)))
+            }
     }
 
     override fun openPopup(url: String) {
-        val intent = Intent(this, WebViewerActivity::class.java)
-        intent.putExtra(EXTRA_URL, url)
-        startActivity(intent)
+        Intent(this, WebViewerActivity::class.java)
+            .putExtra(EXTRA_URL, url)
+            .let {
+                startActivity(it)
+            }
     }
 
     override fun onRequestPermissionsResult(
@@ -327,9 +329,9 @@ class WebViewerActivity : AppCompatActivity(),
             if (grantResults.isNotEmpty()
                 && grantResults[0] == PackageManager.PERMISSION_GRANTED
             ) {
-                if (mDownloadUrl != null && mDownloadMimetype != null) {
+                if (downloadUrl != null && downloadMimetype != null) {
                     mLastDownloadId =
-                        FileUtils.downloadFile(this, mDownloadUrl!!, mDownloadMimetype!!)
+                        FileUtils.downloadFile(this, downloadUrl!!, downloadMimetype!!)
                 }
             } else {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
@@ -351,8 +353,8 @@ class WebViewerActivity : AppCompatActivity(),
         }
     }
 
-    private var mDownloadUrl: String? = null
-    private var mDownloadMimetype: String? = null
+    private var downloadUrl: String? = null
+    private var downloadMimetype: String? = null
 
     override fun onDownloadStart(
         url: String,
@@ -361,13 +363,13 @@ class WebViewerActivity : AppCompatActivity(),
         mimeType: String,
         contentLength: Long
     ) {
-        if (mDownloadManager == null) {
-            mDownloadManager = getSystemService(DOWNLOAD_SERVICE) as DownloadManager
+        if (downloadManager == null) {
+            downloadManager = getSystemService(DOWNLOAD_SERVICE) as DownloadManager
         }
-        mDownloadUrl = url
-        mDownloadMimetype = mimeType
+        downloadUrl = url
+        downloadMimetype = mimeType
         val hasPermission = PermissionUtils.hasPermission(
-            this@WebViewerActivity,
+            this,
             Manifest.permission.WRITE_EXTERNAL_STORAGE,
             PermissionUtils.REQUEST_PERMISSION_WRITE_EXTERNAL_STORAGE
         )
@@ -377,34 +379,34 @@ class WebViewerActivity : AppCompatActivity(),
     }
 
     override fun onClick(v: View) {
-        mPresenter!!.onClick(v.id, binding.aWebViewerWv!!.url, mPopupMenu)
+        presenter.onClick(v.id, binding.aWebViewerWv.url ?: "", popupMenu)
     }
 
     override fun onRefresh() {
-        binding.aWebViewerWv!!.reload()
+        binding.aWebViewerWv.reload()
     }
 
     inner class MyWebChromeClient : WebChromeClient() {
         // For Android 3.0+
         // For Android < 3.0
-        @JvmOverloads
-        fun openFileChooser(
-            uploadMsg: ValueCallback<Uri?>?,
-            acceptType: String? = ""
-        ) {
+        fun openFileChooser(uploadMsg: ValueCallback<Uri>, acceptType: String) {
             filePathCallbackNormal = uploadMsg
-            val i = Intent(Intent.ACTION_GET_CONTENT)
-            i.addCategory(Intent.CATEGORY_OPENABLE)
-            i.type = "image/*"
-            startActivityForResult(
-                Intent.createChooser(i, getString(R.string.select_image)),
-                REQUEST_FILE_CHOOSER
-            )
+
+            Intent(Intent.ACTION_GET_CONTENT)
+                .addCategory(Intent.CATEGORY_OPENABLE)
+                .setType("image/*")
+                .let {
+                    startActivityForResult(
+                        Intent.createChooser(it, getString(R.string.select_image)),
+                        REQUEST_FILE_CHOOSER
+                    )
+                }
         }
 
         // For Android 5.0+
         override fun onShowFileChooser(
-            webView: WebView, filePathCallback: ValueCallback<Array<Uri>>,
+            webView: WebView,
+            filePathCallback: ValueCallback<Array<Uri>>,
             fileChooserParams: FileChooserParams
         ): Boolean {
             if (filePathCallbackLollipop != null) {
@@ -412,13 +414,16 @@ class WebViewerActivity : AppCompatActivity(),
                 filePathCallbackLollipop = null
             }
             filePathCallbackLollipop = filePathCallback
-            val intent = Intent(Intent.ACTION_GET_CONTENT)
-            intent.addCategory(Intent.CATEGORY_OPENABLE)
-            intent.type = "image/*"
-            startActivityForResult(
-                Intent.createChooser(intent, getString(R.string.select_image)),
-                REQUEST_FILE_CHOOSER_FOR_LOLLIPOP
-            )
+            Intent(Intent.ACTION_GET_CONTENT)
+                .addCategory(Intent.CATEGORY_OPENABLE)
+                .setType("image/*")
+                .let {
+                    startActivityForResult(
+                        Intent.createChooser(it, getString(R.string.select_image)),
+                        REQUEST_FILE_CHOOSER_FOR_LOLLIPOP
+                    )
+                }
+
             return true
         }
 
@@ -428,12 +433,15 @@ class WebViewerActivity : AppCompatActivity(),
             message: String,
             result: JsResult
         ): Boolean {
-            val dialog = AlertDialog.Builder(this@WebViewerActivity)
+            AlertDialog.Builder(this@WebViewerActivity)
                 .setMessage(message)
-                .setPositiveButton(R.string.yes) { dialog, which -> result.confirm() }
+                .setPositiveButton(R.string.yes) { _, _ -> result.confirm() }
                 .create()
-            dialog.setCanceledOnTouchOutside(false)
-            dialog.show()
+                .apply {
+                    setCanceledOnTouchOutside(false)
+                }.run {
+                    show()
+                }
             return true
         }
 
@@ -443,65 +451,81 @@ class WebViewerActivity : AppCompatActivity(),
             message: String,
             result: JsResult
         ): Boolean {
-            val dialog = AlertDialog.Builder(this@WebViewerActivity)
+            AlertDialog.Builder(this@WebViewerActivity)
                 .setMessage(message)
-                .setPositiveButton(R.string.yes) { dialog, which -> result.confirm() }
-                .setNegativeButton(R.string.no) { dialog, which -> result.cancel() }
+                .setPositiveButton(R.string.yes) { _, _ -> result.confirm() }
+                .setNegativeButton(R.string.no) { _, _ -> result.cancel() }
                 .create()
-            dialog.setCanceledOnTouchOutside(false)
-            dialog.show()
+                .apply {
+                    setCanceledOnTouchOutside(false)
+                }.run {
+                    show()
+                }
             return true
         }
 
         override fun onProgressChanged(view: WebView, progress: Int) {
-            mPresenter!!.onProgressChanged(binding.aWebViewerSrl, progress)
+            presenter.onProgressChanged(binding.aWebViewerSrl, progress)
         }
 
         override fun onReceivedTitle(view: WebView, title: String) {
-            mPresenter!!.onReceivedTitle(title, view.url)
+            presenter.onReceivedTitle(title, view.url ?: "")
         }
     }
 
     inner class MyWebViewClient : WebViewClient() {
-        override fun onPageFinished(view: WebView, url: String) {
-            mPresenter!!.onReceivedTitle(view.title, url)
-            mPresenter!!.setEnabledGoBackAndGoForward(view.canGoBack(), view.canGoForward())
+
+        override fun onPageFinished(view: WebView?, url: String?) {
+            val view = view ?: return
+            val url = url ?: return
+
+            presenter.onReceivedTitle(view.title ?: "", url)
+            presenter.setEnabledGoBackAndGoForward(view.canGoBack(), view.canGoForward())
         }
 
-        override fun shouldOverrideUrlLoading(view: WebView, url: String): Boolean {
-            return if (url.endsWith(".mp4")) {
-                val intent = Intent(Intent.ACTION_VIEW)
-                intent.setDataAndType(Uri.parse(url), "video/*")
-                intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
-                view.context.startActivity(intent)
-                true
-            } else if (url.startsWith("tel:") || url.startsWith("sms:") || url.startsWith("smsto:")
-                || url.startsWith("mms:") || url.startsWith("mmsto:") || url.startsWith("mailto:")
-            ) {
-                val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
-                intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
-                view.context.startActivity(intent)
-                true
-            } else {
-                super.shouldOverrideUrlLoading(view, url)
+        override fun shouldOverrideUrlLoading(view: WebView?, url: String?): Boolean {
+            val view = view ?: return false
+            val url = url ?: return false
+
+            return when {
+                url.endsWith(".mp4") -> {
+                    Intent(Intent.ACTION_VIEW)
+                        .setDataAndType(Uri.parse(url), "video/*")
+                        .setFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                        .let {
+                            view.context.startActivity(it)
+                        }
+                    true
+                }
+                url.startsWith("tel:") || url.startsWith("sms:") || url.startsWith("smsto:")
+                        || url.startsWith("mms:") || url.startsWith("mmsto:") || url.startsWith("mailto:") -> {
+
+                    Intent(Intent.ACTION_VIEW, Uri.parse(url))
+                        .setFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                        .let {
+                            view.context.startActivity(it)
+                        }
+                    true
+                }
+                else -> super.shouldOverrideUrlLoading(view, url)
             }
         }
     }
 
     override fun onBackPressed() {
-        mPresenter!!.onBackPressed(mPopupMenu, binding.aWebViewerWv)
+        presenter.onBackPressed(popupMenu, binding.aWebViewerWv)
     }
 
-    private val mDownloadReceiver: BroadcastReceiver = object : BroadcastReceiver() {
+    private val downloadReceiver: BroadcastReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context, intent: Intent) {
             val action = intent.action
             if (DownloadManager.ACTION_DOWNLOAD_COMPLETE == action) {
-                if (mDownloadManager != null) {
+                if (downloadManager != null) {
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
                         val downloadedUri =
-                            mDownloadManager!!.getUriForDownloadedFile(mLastDownloadId)
+                            downloadManager!!.getUriForDownloadedFile(mLastDownloadId)
                         val mimeType =
-                            mDownloadManager!!.getMimeTypeForDownloadedFile(mLastDownloadId)
+                            downloadManager!!.getMimeTypeForDownloadedFile(mLastDownloadId)
                         NotifyDownloadedTask().execute(downloadedUri.toString(), mimeType)
                     }
                 }
@@ -524,7 +548,7 @@ class WebViewerActivity : AppCompatActivity(),
             var fileName = ""
             val query = DownloadManager.Query()
             query.setFilterById(mLastDownloadId)
-            val c = mDownloadManager!!.query(query)
+            val c = downloadManager!!.query(query)
             if (c.moveToFirst()) {
                 val status = c.getInt(c.getColumnIndex(DownloadManager.COLUMN_STATUS))
                 if (DownloadManager.STATUS_SUCCESSFUL == status) {
@@ -546,9 +570,11 @@ class WebViewerActivity : AppCompatActivity(),
                 )
                     .setDuration(resources.getInteger(R.integer.snackbar_duration))
                     .setAction(getString(R.string.open)) {
-                        val viewIntent = Intent(Intent.ACTION_VIEW)
-                        viewIntent.setDataAndType(Uri.parse(uriStr), mimeType)
-                        mPresenter!!.startActivity(viewIntent)
+                        Intent(Intent.ACTION_VIEW)
+                            .setDataAndType(Uri.parse(uriStr), mimeType)
+                            .let {
+                                presenter.startActivity(it)
+                            }
                     }
                     .show()
             }

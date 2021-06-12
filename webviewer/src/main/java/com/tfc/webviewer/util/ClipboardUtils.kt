@@ -31,8 +31,10 @@ object ClipboardUtils {
     fun copyText(context: Context, text: String?) {
         val cm = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-            val clip = ClipData.newPlainText("", text)
-            cm.primaryClip = clip
+            ClipData.newPlainText("", text)
+                .let {
+                    cm.setPrimaryClip(it)
+                }
         } else {
             @Suppress("DEPRECATION")
             cm.text = text
@@ -56,10 +58,7 @@ object ClipboardUtils {
         return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
             val description = cm.primaryClipDescription
             val clipData = cm.primaryClip
-            if (clipData != null && description != null && description.hasMimeType(
-                    ClipDescription.MIMETYPE_TEXT_PLAIN
-                )
-            ) {
+            if (clipData != null && description != null && description.hasMimeType(ClipDescription.MIMETYPE_TEXT_PLAIN)) {
                 clipData.getItemAt(0).text
             } else {
                 ""
