@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "598316460273",
+    "project_id": "web-viewer-143e4",
+    "storage_bucket": "web-viewer-143e4.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:598316460273:android:71db840d18ad9034566150",
+        "android_client_info": {
+          "package_name": "com.tfc.webviewer.sample"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "598316460273-hh775tapruf91tb8gmkp7mv3k0glph5g.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDfBM1kEZwRXeflGJf64aSZkdNWSZFs0zI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "598316460273-hh775tapruf91tb8gmkp7mv3k0glph5g.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

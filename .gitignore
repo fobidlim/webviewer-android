@@ -31,10 +31,6 @@ proguard/
 # Android Studio captures folder
 captures/
 
-
-# Crashlytics configuations
-com_crashlytics_export_strings.xml
-
 # Signing files
 .signing/
 

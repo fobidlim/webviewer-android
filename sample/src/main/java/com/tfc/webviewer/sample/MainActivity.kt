@@ -5,10 +5,8 @@ import android.databinding.DataBindingUtil
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
 import android.view.KeyEvent
-import com.crashlytics.android.Crashlytics
 import com.tfc.webviewer.sample.databinding.AMainBinding
 import com.tfc.webviewer.ui.WebViewerActivity
-import io.fabric.sdk.android.Fabric
 
 class MainActivity : AppCompatActivity() {
 
@@ -18,7 +16,6 @@ class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        Fabric.with(this, Crashlytics())
 
         binding.aMainEtUrl.setOnKeyListener { v, keyCode, event ->
             if (KeyEvent.ACTION_DOWN == event.action) {
