@@ -13,16 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.tfc.webviewer.util;
+package com.tfc.webviewer.util
 
-import java.net.MalformedURLException;
-import java.net.URL;
+import java.net.MalformedURLException
+import java.net.URL
 
 /**
  * author @Fobid
  */
-public class UrlUtils {
-    public static String getHost(String url) throws MalformedURLException {
-        return new URL(url).getHost();
-    }
+object UrlUtils {
+
+    @Throws(MalformedURLException::class)
+    fun getHost(url: String?): String = URL(url).host
 }
