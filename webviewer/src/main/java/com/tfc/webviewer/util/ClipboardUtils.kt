@@ -23,7 +23,7 @@ import android.content.Context
 import android.os.Build
 
 /**
- * author @Fobid
+ * author @fobidlim
  */
 object ClipboardUtils {
 

@@ -19,7 +19,7 @@ import java.net.MalformedURLException
 import java.net.URL
 
 /**
- * author @Fobid
+ * author @fobidlim
  */
 object UrlUtils {
 

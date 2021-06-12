@@ -21,7 +21,7 @@ import android.webkit.WebView.HitTestResult
 import android.widget.PopupWindow
 
 /**
- * author @Fobid
+ * author @fobidlim
  */
 interface IWebViewPresenter {
 

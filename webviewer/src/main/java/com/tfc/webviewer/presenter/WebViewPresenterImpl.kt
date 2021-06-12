@@ -36,7 +36,7 @@ import java.net.MalformedURLException
 import java.net.URLEncoder
 
 /**
- * author @Fobid
+ * author @fobidlim
  */
 class WebViewPresenterImpl(
     private val context: Context,

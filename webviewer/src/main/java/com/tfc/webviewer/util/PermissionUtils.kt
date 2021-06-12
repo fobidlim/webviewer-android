@@ -21,7 +21,7 @@ import android.support.v4.app.ActivityCompat
 import android.support.v4.content.ContextCompat
 
 /**
- * author @Fobid
+ * author @fobidlim
  */
 object PermissionUtils {
 

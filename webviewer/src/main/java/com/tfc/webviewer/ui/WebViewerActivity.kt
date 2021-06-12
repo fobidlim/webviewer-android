@@ -49,7 +49,7 @@ import com.tfc.webviewer.util.FileUtils
 import com.tfc.webviewer.util.PermissionUtils
 
 /**
- * author @Fobid
+ * author @fobidlim
  */
 class WebViewerActivity : AppCompatActivity(),
     WebViewPresenterImpl.View,

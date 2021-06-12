@@ -24,6 +24,9 @@ import android.view.KeyEvent
 import com.tfc.webviewer.sample.databinding.AMainBinding
 import com.tfc.webviewer.ui.WebViewerActivity
 
+/**
+ * author @fobidlim
+ */
 class MainActivity : AppCompatActivity() {
 
     private val binding by lazy {
