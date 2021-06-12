@@ -31,3 +31,7 @@ task clean(type: Delete) {
 }
 
 ext.supportLibVersion = '26.1.0'
+ext.compileSdkVersion = 30
+ext.buildToolsVersion = "30.0.3"
+ext.minSdkVersion = 9
+ext.targetSdkVersion = 30
