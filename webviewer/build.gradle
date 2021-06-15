@@ -21,7 +21,7 @@ apply plugin: 'com.jfrog.bintray'
 apply plugin: 'com.github.dcendents.android-maven'
 apply plugin: 'signing'
 
-version = '0.70.5'
+version = '0.71.0'
 
 def siteUrl = 'https://github.com/fobid/webviewer'
 
@@ -36,7 +36,7 @@ android {
     defaultConfig {
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 3
+        versionCode 4
         versionName version
 
         vectorDrawables.useSupportLibrary(true)

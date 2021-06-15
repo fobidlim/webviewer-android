@@ -1,3 +1,8 @@
+## 0.71.0
+- Migrate to Kotlin
+- Migrate to AppCompat
+- Migrate to AndroidX
+
 ## 0.70.5
 - Added shadow to popup menu.
 - Support to choose another email app on email clicked.

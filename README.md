@@ -1,4 +1,5 @@
 # WebViewer Library
+
 [![Android Arsenal](https://img.shields.io/badge/Android%20Arsenal-webviewer-green.svg?style=true)](https://android-arsenal.com/details/1/4626)
 
 [![Join the chat at https://gitter.im/fobid/webviewer/Lobby](https://badges.gitter.im/fobid/webviewer/Lobby.svg)](https://gitter.im/fobid/webviewer?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
@@ -10,17 +11,17 @@ You can download WebViewer Sample application on Google Play.
 [![Get it on Google Play](http://www.android.com/images/brand/get_it_on_play_logo_small.png)](https://play.google.com/store/apps/details?id=com.tfc.webviewer.sample)
 
 # Download
-Download [the latest JAR](https://repo1.maven.org/maven2/com/github/fobid/webviewer/0.70.5/webviewer-0.70.5.aar) or grab via Maven:
+Download [the latest JAR](https://repo1.maven.org/maven2/com/github/fobid/webviewer/0.71.0/webviewer-0.71.0.aar) or grab via Maven:
 ```
 <dependency>
   <groupId>com.github.fobid</groupId>
   <artifactId>webviewer</artifactId>
-  <version>0.70.5</version>
+  <version>0.71.0</version>
 </dependency>
 ```
 or Gradle:
 ```
-compile 'com.github.fobid:webviewer:0.70.5'
+compile 'com.github.fobid:webviewer:0.71.0'
 ```
 
 # Usage
@@ -33,9 +34,9 @@ compile 'com.github.fobid:webviewer:0.70.5'
 
 *2. Start `webViewerActivity` with URL.*
 ```
-String url = "https://www.github.com/fobid";
-// String url = "www.github.com/fobid";
-// String url = "github.com/fobid";
+String url = "https://www.github.com/fobidlim";
+// String url = "www.github.com/fobidlim";
+// String url = "github.com/fobidlim";
 
 Intent intent = new Intent(Context, WebViewerActivity.class);
 intent.putExtra(WebViewerActivity.EXTRA_URL, url);
@@ -43,7 +44,7 @@ startActivity(intent);
 ```
 # License
 ```
-Copyright 2016 Fobid
+Copyright 2021 fobidlim
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
