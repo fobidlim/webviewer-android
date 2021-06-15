@@ -36,7 +36,8 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        binding.aMainEtUrl.setOnKeyListener { v, keyCode, event ->
+        binding.activity = this
+        binding.etUrl.setOnKeyListener { v, keyCode, event ->
             if (KeyEvent.ACTION_DOWN == event.action) {
                 if (KeyEvent.KEYCODE_ENTER == keyCode) {
                     loadUrl()
@@ -45,11 +46,12 @@ class MainActivity : AppCompatActivity() {
             false
         }
         val url = "github.com/fobidlim"
+        binding.url = url
         startWebViewer(url)
     }
 
     fun loadUrl() {
-        val url = binding.aMainEtUrl.text.toString().trim()
+        val url = binding.etUrl.text.toString().trim()
 
         if (url.isNotEmpty()) {
             startWebViewer(url)

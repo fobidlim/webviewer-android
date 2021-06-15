@@ -19,6 +19,17 @@
     xmlns:tools="http://schemas.android.com/tools"
     tools:context="com.tfc.webviewer.sample.MainActivity">
 
+    <data>
+
+        <variable
+            name="activity"
+            type="com.tfc.webviewer.sample.MainActivity" />
+
+        <variable
+            name="url"
+            type="String" />
+    </data>
+
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -37,10 +48,11 @@
             tools:ignore="HardcodedText">
 
             <EditText
-                android:id="@+id/a_main_et_url"
+                android:id="@+id/et_url"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:inputType="textUri" />
+                android:inputType="textUri"
+                android:text="@{url}" />
         </com.google.android.material.textfield.TextInputLayout>
 
         <Button
@@ -48,7 +60,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:background="@color/colorPrimary"
-            android:onClick="loadUrl"
+            android:onClick="@{() -> activity.loadUrl()}"
             android:text="@string/load"
             android:textColor="@android:color/white"
             app:layout_constraintEnd_toEndOf="parent"
