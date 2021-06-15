@@ -23,10 +23,10 @@ apply plugin: 'signing'
 
 version = '0.71.0'
 
-def siteUrl = 'https://github.com/fobid/webviewer'
+def siteUrl = 'https://github.com/fobidlim/webviewer'
 
 // Homepage URL of the library
-def gitUrl = 'https://github.com/fobid/webviewer.git'    // Git repository URL
+def gitUrl = 'https://github.com/fobidlim/webviewer.git'    // Git repository URL
 group = "com.github.fobid"                                  // Maven Group ID for the artifact
 
 android {
@@ -79,7 +79,7 @@ install {
                     developer {
                         id 'fobid'
                         name 'fobid'
-                        email 'fobidbumz@naver.com'
+                        email 'fobidlim@gmail.com'
                     }
                 }
                 scm {
@@ -98,17 +98,7 @@ task sourcesJar(type: Jar) {
     classifier = 'sources'
 }
 
-task javadoc(type: Javadoc) {
-    source = android.sourceSets.main.java.srcDirs
-    classpath += project.files(android.getBootClasspath().join(File.pathSeparator))
-}
-
-task javadocJar(type: Jar, dependsOn: javadoc) {
-    classifier = 'javadoc'
-    from javadoc.destinationDir
-}
 artifacts {
-    archives javadocJar
     archives sourcesJar
 }
 
@@ -130,7 +120,7 @@ bintray {
         licenses = ["Apache-2.0"]
         publish = true
 
-        githubRepo = 'fobid/webviewer-android'
+        githubRepo = 'fobidlim/webviewer-android'
         githubReleaseNotesFile = 'CHANGELOG.md'
 
         version {
