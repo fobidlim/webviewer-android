@@ -34,7 +34,7 @@ android {
         applicationId "com.tfc.webviewer.sample"
         minSdkVersion 16
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 4
+        versionCode 5
         versionName "0.70.5"
         signingConfig signingConfigs.config
     }
