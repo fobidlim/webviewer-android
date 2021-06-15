@@ -20,17 +20,12 @@ import android.annotation.SuppressLint
 import android.app.DownloadManager
 import android.content.*
 import android.content.pm.PackageManager
-import android.databinding.DataBindingUtil
 import android.graphics.drawable.ColorDrawable
 import android.net.Uri
 import android.os.AsyncTask
 import android.os.Build
 import android.os.Bundle
 import android.provider.Settings
-import android.support.design.widget.Snackbar
-import android.support.v4.widget.SwipeRefreshLayout.OnRefreshListener
-import android.support.v7.app.AlertDialog
-import android.support.v7.app.AppCompatActivity
 import android.view.ContextMenu
 import android.view.ContextMenu.ContextMenuInfo
 import android.view.LayoutInflater
@@ -40,9 +35,12 @@ import android.view.WindowManager
 import android.webkit.*
 import android.webkit.WebChromeClient.FileChooserParams
 import android.widget.*
+import androidx.appcompat.app.AlertDialog
+import androidx.appcompat.app.AppCompatActivity
+import androidx.coordinatorlayout.widget.CoordinatorLayout
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+import com.google.android.material.snackbar.Snackbar
 import com.tfc.webviewer.R
-import com.tfc.webviewer.databinding.AWebViewerBinding
-import com.tfc.webviewer.databinding.PopupMenuBinding
 import com.tfc.webviewer.presenter.WebViewPresenterImpl
 import com.tfc.webviewer.util.ClipboardUtils
 import com.tfc.webviewer.util.FileUtils
@@ -54,29 +52,35 @@ import com.tfc.webviewer.util.PermissionUtils
 class WebViewerActivity : AppCompatActivity(),
     WebViewPresenterImpl.View,
     View.OnClickListener,
-    OnRefreshListener,
+    SwipeRefreshLayout.OnRefreshListener,
     DownloadListener,
     OnCreateContextMenuListener {
 
     private val presenter by lazy { WebViewPresenterImpl(this, this) }
-
-    private val popupMenu: PopupWindow by lazy {
-        PopupWindow(this)
-    }
-
-    private val binding by lazy {
-        DataBindingUtil.setContentView<AWebViewerBinding>(this, R.layout.a_web_viewer)
-    }
-
-    private val popupMenuBinding by lazy {
-        PopupMenuBinding.inflate(LayoutInflater.from(this))
-    }
 
     private var url = ""
     private var filePathCallbackLollipop: ValueCallback<Array<Uri>>? = null
     private var filePathCallbackNormal: ValueCallback<Uri>? = null
     private var downloadManager: DownloadManager? = null
     private var mLastDownloadId: Long = 0
+
+    // Toolbar
+    private val tvTitle by lazy { findViewById<TextView>(R.id.toolbar_tv_title) }
+    private val tvUrl by lazy { findViewById<TextView>(R.id.toolbar_tv_url) }
+
+    private val coordinatorlayout by lazy {
+        findViewById<CoordinatorLayout>(R.id.a_web_viewer_coordinatorlayout)
+    }
+    private val progressBar by lazy { findViewById<ProgressBar>(R.id.a_web_viewer_pb) }
+    private val swipeRefreshLayout by lazy { findViewById<SwipeRefreshLayout>(R.id.a_web_viewer_srl) }
+    private val webView by lazy { findViewById<WebView>(R.id.a_web_viewer_wv) }
+
+    // PopupWindow
+    private val popupMenu: PopupWindow by lazy { PopupWindow(this) }
+    private var rlControlButtons: View? = null
+    private val btnMore by lazy { findViewById<ImageButton>(R.id.toolbar_btn_more) }
+    private var btnBack: View? = null
+    private var btnForward: View? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -85,6 +89,7 @@ class WebViewerActivity : AppCompatActivity(),
             WindowManager.LayoutParams.FLAG_FULLSCREEN,
             WindowManager.LayoutParams.FLAG_FULLSCREEN
         )
+        setContentView(R.layout.a_web_viewer)
         supportActionBar?.hide()
         IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE)
             .apply {
@@ -104,7 +109,7 @@ class WebViewerActivity : AppCompatActivity(),
 
     override fun onCreateContextMenu(menu: ContextMenu, v: View, menuInfo: ContextMenuInfo) {
         super.onCreateContextMenu(menu, v, menuInfo)
-        val result = binding.aWebViewerWv.hitTestResult
+        val result = webView.hitTestResult
         presenter.onLongClick(result)
     }
 
@@ -166,57 +171,61 @@ class WebViewerActivity : AppCompatActivity(),
     @SuppressLint("SetJavaScriptEnabled")
     private fun bindView() {
         // Toolbar
-        with(binding) {
-            aWebViewerSrl.setOnRefreshListener(this@WebViewerActivity)
+        swipeRefreshLayout.setOnRefreshListener(this@WebViewerActivity)
 
-            aWebViewerWv.apply {
-                settings.apply {
-                    javaScriptEnabled = true
-                    javaScriptCanOpenWindowsAutomatically = true
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-                        displayZoomControls = false
-                    }
-                    builtInZoomControls = true
-                    setSupportZoom(true)
-                    domStorageEnabled = true
+        webView.apply {
+            settings.apply {
+                javaScriptEnabled = true
+                javaScriptCanOpenWindowsAutomatically = true
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
+                    displayZoomControls = false
                 }
-
-                webChromeClient = MyWebChromeClient()
-                webViewClient = MyWebViewClient()
-                setDownloadListener(this@WebViewerActivity)
-                setOnCreateContextMenuListener(this@WebViewerActivity)
+                builtInZoomControls = true
+                setSupportZoom(true)
+                domStorageEnabled = true
             }
 
-            toolbarContainer.apply {
-                toolbarBtnClose.setOnClickListener(this@WebViewerActivity)
-                toolbarBtnMore.setOnClickListener(this@WebViewerActivity)
-            }
+            webChromeClient = MyWebChromeClient()
+            webViewClient = MyWebViewClient()
+            setDownloadListener(this@WebViewerActivity)
+            setOnCreateContextMenuListener(this@WebViewerActivity)
         }
+
+        findViewById<ImageButton>(R.id.toolbar_btn_close).setOnClickListener(this@WebViewerActivity)
+        btnMore.setOnClickListener(this@WebViewerActivity)
 
         // PopupWindow
         initPopupMenu()
     }
 
     private fun initPopupMenu() {
+        val view = LayoutInflater.from(this).inflate(R.layout.popup_menu, null)
+
         popupMenu.apply {
-            contentView = popupMenuBinding.root
+            contentView = view
             isOutsideTouchable = true
             setBackgroundDrawable(ColorDrawable(0))
             isFocusable = true
         }
 
-        with(popupMenuBinding) {
-            popupMenuBtnBack.setOnClickListener(this@WebViewerActivity)
-            popupMenuBtnForward.setOnClickListener(this@WebViewerActivity)
-            popupMenuBtnRefresh.setOnClickListener(this@WebViewerActivity)
-            popupMenuBtnCopyLink.setOnClickListener(this@WebViewerActivity)
-            popupMenuBtnOpenWithOtherBrowser.setOnClickListener(this@WebViewerActivity)
-            popupMenuBtnShare.setOnClickListener(this@WebViewerActivity)
+        view.apply {
+            rlControlButtons = findViewById(R.id.popup_menu_rl_arrows)
+            btnBack = findViewById(R.id.popup_menu_btn_back)
+            btnForward = findViewById(R.id.popup_menu_btn_forward)
+
+            btnBack?.setOnClickListener(this@WebViewerActivity)
+            btnForward?.setOnClickListener(this@WebViewerActivity)
+            findViewById<TextView>(R.id.popup_menu_btn_refresh).setOnClickListener(this@WebViewerActivity)
+            findViewById<TextView>(R.id.popup_menu_btn_copy_link).setOnClickListener(this@WebViewerActivity)
+            findViewById<TextView>(R.id.popup_menu_btn_open_with_other_browser).setOnClickListener(
+                this@WebViewerActivity
+            )
+            findViewById<TextView>(R.id.popup_menu_btn_share).setOnClickListener(this@WebViewerActivity)
         }
     }
 
     override fun loadUrl(url: String) {
-        binding.aWebViewerWv.loadUrl(url)
+        webView.loadUrl(url)
         presenter.onReceivedTitle("", this.url)
     }
 
@@ -229,39 +238,39 @@ class WebViewerActivity : AppCompatActivity(),
     }
 
     override fun openMenu() {
-        popupMenu.showAsDropDown(binding.toolbarContainer.toolbarBtnMore)
+        popupMenu.showAsDropDown(btnMore)
     }
 
     override fun setEnabledGoBackAndGoForward() {
-        popupMenuBinding.popupMenuRlArrows.visibility = View.VISIBLE
+        rlControlButtons?.visibility = View.VISIBLE
     }
 
     override fun setDisabledGoBackAndGoForward() {
-        popupMenuBinding.popupMenuRlArrows.visibility = View.GONE
+        rlControlButtons?.visibility = View.GONE
     }
 
     override fun setEnabledGoBack() {
-        popupMenuBinding.popupMenuBtnBack.isEnabled = true
+        btnBack?.isEnabled = true
     }
 
     override fun setDisabledGoBack() {
-        popupMenuBinding.popupMenuBtnBack.isEnabled = false
+        btnBack?.isEnabled = false
     }
 
     override fun setEnabledGoForward() {
-        popupMenuBinding.popupMenuBtnForward.isEnabled = true
+        btnForward?.isEnabled = true
     }
 
     override fun setDisabledGoForward() {
-        popupMenuBinding.popupMenuBtnForward.isEnabled = false
+        btnForward?.isEnabled = false
     }
 
     override fun goBack() {
-        binding.aWebViewerWv.goBack()
+        webView.goBack()
     }
 
     override fun goForward() {
-        binding.aWebViewerWv.goForward()
+        webView.goForward()
     }
 
     override fun copyLink(url: String) {
@@ -278,7 +287,7 @@ class WebViewerActivity : AppCompatActivity(),
 
     override fun openShare(url: String) {
         Intent(Intent.ACTION_SEND)
-            .putExtra(Intent.EXTRA_TEXT, binding.aWebViewerWv.url)
+            .putExtra(Intent.EXTRA_TEXT, webView.url)
             .setType("text/plain")
             .let {
                 startActivity(Intent.createChooser(it, resources.getString(R.string.menu_share)))
@@ -286,11 +295,11 @@ class WebViewerActivity : AppCompatActivity(),
     }
 
     override fun setToolbarTitle(title: String) {
-        binding.toolbarContainer.toolbarTvTitle.text = title
+        tvTitle.text = title
     }
 
     override fun setToolbarUrl(url: String) {
-        binding.toolbarContainer.toolbarTvUrl.text = url
+        tvUrl.text = url
     }
 
     override fun onDownloadStart(url: String) {
@@ -298,11 +307,11 @@ class WebViewerActivity : AppCompatActivity(),
     }
 
     override fun setProgressBar(progress: Int) {
-        binding.aWebViewerPb.progress = progress
+        progressBar.progress = progress
     }
 
     override fun setRefreshing(refreshing: Boolean) {
-        binding.aWebViewerSrl.isRefreshing = refreshing
+        swipeRefreshLayout.isRefreshing = refreshing
     }
 
     override fun openEmail(email: String) {
@@ -379,11 +388,11 @@ class WebViewerActivity : AppCompatActivity(),
     }
 
     override fun onClick(v: View) {
-        presenter.onClick(v.id, binding.aWebViewerWv.url ?: "", popupMenu)
+        presenter.onClick(v.id, webView.url ?: "", popupMenu)
     }
 
     override fun onRefresh() {
-        binding.aWebViewerWv.reload()
+        webView.reload()
     }
 
     inner class MyWebChromeClient : WebChromeClient() {
@@ -465,7 +474,7 @@ class WebViewerActivity : AppCompatActivity(),
         }
 
         override fun onProgressChanged(view: WebView, progress: Int) {
-            presenter.onProgressChanged(binding.aWebViewerSrl, progress)
+            presenter.onProgressChanged(swipeRefreshLayout, progress)
         }
 
         override fun onReceivedTitle(view: WebView, title: String) {
@@ -513,7 +522,7 @@ class WebViewerActivity : AppCompatActivity(),
     }
 
     override fun onBackPressed() {
-        presenter.onBackPressed(popupMenu, binding.aWebViewerWv)
+        presenter.onBackPressed(popupMenu, webView)
     }
 
     private val downloadReceiver: BroadcastReceiver = object : BroadcastReceiver() {
@@ -564,19 +573,21 @@ class WebViewerActivity : AppCompatActivity(),
                 val fileName = results[1]
                 val mimeType = results[2]
                 Snackbar.make(
-                    binding.aWebViewerCoordinatorlayout,
+                    coordinatorlayout,
                     fileName + getString(R.string.downloaded_message),
                     Snackbar.LENGTH_LONG
-                )
-                    .setDuration(resources.getInteger(R.integer.snackbar_duration))
-                    .setAction(getString(R.string.open)) {
+                ).apply {
+                    duration = resources.getInteger(R.integer.snackbar_duration)
+                    setAction(getString(R.string.open)) {
                         Intent(Intent.ACTION_VIEW)
                             .setDataAndType(Uri.parse(uriStr), mimeType)
                             .let {
                                 presenter.startActivity(it)
                             }
                     }
-                    .show()
+                }.run {
+                    show()
+                }
             }
         }
     }

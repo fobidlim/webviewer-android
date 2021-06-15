@@ -19,8 +19,6 @@ import android.content.ActivityNotFoundException
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
-import android.support.v4.widget.SwipeRefreshLayout
-import android.support.v7.app.AlertDialog
 import android.text.TextUtils
 import android.util.Log
 import android.webkit.URLUtil
@@ -28,6 +26,8 @@ import android.webkit.WebView
 import android.webkit.WebView.HitTestResult
 import android.widget.PopupWindow
 import android.widget.Toast
+import androidx.appcompat.app.AlertDialog
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.tfc.webviewer.R
 import com.tfc.webviewer.util.UrlUtils
 import com.tfc.webviewer.vibrate

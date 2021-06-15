@@ -32,7 +32,7 @@ android {
     buildToolsVersion rootProject.ext.buildToolsVersion
     defaultConfig {
         applicationId "com.tfc.webviewer.sample"
-        minSdkVersion rootProject.ext.minSdkVersion
+        minSdkVersion 16
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 4
         versionName "0.70.5"
@@ -56,15 +56,20 @@ android {
     buildFeatures {
         dataBinding true
     }
+    compileOptions {
+        sourceCompatibility = JavaVersion.VERSION_1_8
+        targetCompatibility = JavaVersion.VERSION_1_8
+    }
 }
 
 dependencies {
     implementation fileTree(include: ['*.jar'], dir: 'libs')
-    testImplementation "junit:junit:${junit}"
-    implementation "com.android.support:appcompat-v7:${supportLibVersion}"
+    testImplementation "junit:junit:$junit"
+    implementation "androidx.appcompat:appcompat:$appcompat"
     implementation project(':webviewer')
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
     implementation platform('com.google.firebase:firebase-bom:28.1.0')
     implementation 'com.google.firebase:firebase-analytics'
+    implementation "com.google.android.material:material:$material"
 }
 apply plugin: 'com.google.gms.google-services'

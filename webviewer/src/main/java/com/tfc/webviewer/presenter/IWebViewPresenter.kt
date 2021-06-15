@@ -15,10 +15,10 @@
  */
 package com.tfc.webviewer.presenter
 
-import android.support.v4.widget.SwipeRefreshLayout
 import android.webkit.WebView
 import android.webkit.WebView.HitTestResult
 import android.widget.PopupWindow
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 
 /**
  * author @fobidlim

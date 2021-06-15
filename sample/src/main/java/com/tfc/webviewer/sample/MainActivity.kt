@@ -17,10 +17,10 @@
 package com.tfc.webviewer.sample
 
 import android.content.Intent
-import android.databinding.DataBindingUtil
 import android.os.Bundle
-import android.support.v7.app.AppCompatActivity
 import android.view.KeyEvent
+import androidx.appcompat.app.AppCompatActivity
+import androidx.databinding.DataBindingUtil
 import com.tfc.webviewer.sample.databinding.AMainBinding
 import com.tfc.webviewer.ui.WebViewerActivity
 

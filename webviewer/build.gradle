@@ -50,9 +50,9 @@ android {
     lintOptions {
         abortOnError false
     }
-
-    buildFeatures {
-        dataBinding true
+    compileOptions {
+        sourceCompatibility = JavaVersion.VERSION_1_8
+        targetCompatibility = JavaVersion.VERSION_1_8
     }
 }
 
@@ -150,11 +150,12 @@ bintray {
 
 dependencies {
     implementation fileTree(include: ['*.jar'], dir: 'libs')
-    testImplementation "junit:junit:${junit}"
-    implementation "com.android.support:appcompat-v7:${supportLibVersion}"
-    implementation "com.android.support:cardview-v7:${supportLibVersion}"
-    implementation "com.android.support:design:${supportLibVersion}"
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
+    testImplementation "junit:junit:$junit"
+    implementation "androidx.appcompat:appcompat:$appcompat"
+    implementation 'androidx.coordinatorlayout:coordinatorlayout:1.1.0'
+    implementation 'androidx.swiperefreshlayout:swiperefreshlayout:1.1.0'
+    implementation "com.google.android.material:material:$material"
 }
 repositories {
     mavenCentral()
